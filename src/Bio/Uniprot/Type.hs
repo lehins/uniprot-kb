@@ -2,7 +2,6 @@
 module Bio.Uniprot.Type where
 
 import           Data.Text          (Text)
-import           Data.Time.Calendar (Day)
 
 -- |Which taxonomic 'kingdom' an
 -- organism belongs to.
@@ -57,11 +56,11 @@ newtype AC = AC
 -- |DaTe: the date of creation and last modification of the database
 -- entry.
 data DT = DT
-  { dbIntegrationDate :: Day  -- ^Indicates when the entry first appeared in the database.
+  { dbIntegrationDate :: Text -- ^Indicates when the entry first appeared in the database.
   , dbName            :: Text -- ^Indicates in which section of UniProtKB, Swiss-Prot or TrEMBL, the entry can be found.
-  , seqVersionDate    :: Day  -- ^Indicates when the sequence data was last modified.
+  , seqVersionDate    :: Text -- ^Indicates when the sequence data was last modified.
   , seqVersion        :: Int  -- ^The sequence version number of an entry is incremented by one when the amino acid sequence shown in the sequence record is modified.
-  , entryVersionDate  :: Day  -- ^Indicates when data other than the sequence was last modified.
+  , entryVersionDate  :: Text -- ^Indicates when data other than the sequence was last modified.
   , entryVersion      :: Int  -- ^The entry version number is incremented by one whenever any data in the flat file representation of the entry is modified.
   } deriving (Show, Eq, Ord)
 
