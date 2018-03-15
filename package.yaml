@@ -7,7 +7,7 @@ maintainer:          "pavel@yakovlev.me"
 copyright:           "Pavel Yakovlev"
 category:            Bio
 synopsis:            UniProt-KB format parser
-description:         Specification implementation: https://web.expasy.org/docs/userman.html
+description:         Specification implementation of https://web.expasy.org/docs/userman.html
 
 extra-source-files:
 - README.md
