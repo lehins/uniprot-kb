@@ -1,0 +1,33 @@
+name:                uniprot-kb
+version:             0.1.0.0
+github:              "biocad/uniprot-kb"
+license:             BSD3
+author:              "Pavel Yakovlev"
+maintainer:          "pavel@yakovlev.me"
+copyright:           "Pavel Yakovlev"
+category:            Bio
+synopsis:            UniProt-KB format parser
+description:         Specification implementation: https://web.expasy.org/docs/userman.html
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+dependencies:
+- base >= 4.7 && < 5
+- time
+- text
+
+library:
+  source-dirs: src
+
+tests:
+  uniprot-kb-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - uniprot-kb
