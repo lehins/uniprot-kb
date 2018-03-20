@@ -64,42 +64,34 @@ data DT = DT
   , entryVersion      :: Int  -- ^The entry version number is incremented by one whenever any data in the flat file representation of the entry is modified.
   } deriving (Show, Eq, Ord)
 
-data RecName = RecName
+data Name = Name
   { fullName  :: Text   -- ^The full name.
   , shortName :: [Text] -- ^A set of abbreviations of the full name or acronyms.
-  , ecNumber  :: [Int]  -- ^A set of Enzyme Commission numbers.
+  , ecNumber  :: [Text] -- ^A set of Enzyme Commission numbers.
   } deriving (Show, Eq, Ord)
 
-data AltName = AltName
-  { fullName  :: Maybe Text -- ^The full name.
-  , shortName :: [Text]     -- ^A set of abbreviations of the full name or acronyms.
-  , ecNumber  :: [Int]      -- ^A set of Enzyme Commission numbers.
-  , allergen  :: Maybe Text -- ^Antigens (allergens) that cause IgE-mediated atopic allergies in humans.
-  , biotech   :: Maybe Text -- ^A name used in a biotechnological context.
-  , cdAntigen :: [Text]     -- ^??
-  , inn       :: [Text]     -- ^The international nonproprietary name: A generic name for a pharmaceutical substance or active pharmaceutical ingredient that is globally recognized and is a public property.
-  } deriving (Show, Eq, Ord)
-
-data SubName = SubName
-  { fullName :: Text  -- ^The full name.
-  , ecNumber :: [Int] -- ^A set of Enzyme Commission numbers.
-  } deriving (Show, Eq, Ord)
+data AltName = Simple Name
+             | Allergen Text
+             | Biotech Text
+             | CDAntigen Text
+             | INN Text
+  deriving (Show, Eq, Ord)
 
 data Flag
   = Fragment  -- ^The complete sequence is not determined.
   | Fragments -- ^The complete sequence is not determined.
   | Precursor -- ^The sequence displayed does not correspond to the mature form of the protein.
-  deriving (Show, Eq, Ord, Bounded, Enum)
+  deriving (Show, Read, Eq, Ord, Bounded, Enum)
 
 -- |DEscription - general descriptive information about the sequence
 -- stored.
 data DE = DE
-  { recName  :: Maybe RecName -- ^The name recommended by the UniProt consortium.
-  , altNames :: [AltName]     -- ^A synonym of the recommended name.
-  , subNames :: [SubName]     -- ^A name provided by the submitter of the underlying nucleotide sequence.
-  , includes :: [DE]          -- ^A protein is known to include multiple functional domains each of which is described by a different name.
-  , contains :: [DE]          -- ^The functional domains of an enzyme are cleaved, but the catalytic activity can only be observed, when the individual chains reorganize in a complex.
-  , flags    :: [Flag]        -- ^Flags whether the entire is a precursor or/and a fragment.
+  { recName  :: Maybe Name -- ^The name recommended by the UniProt consortium.
+  , altNames :: [AltName]  -- ^A synonym of the recommended name.
+  , subNames :: [Name]     -- ^A name provided by the submitter of the underlying nucleotide sequence.
+  , includes :: [DE]       -- ^A protein is known to include multiple functional domains each of which is described by a different name.
+  , contains :: [DE]       -- ^The functional domains of an enzyme are cleaved, but the catalytic activity can only be observed, when the individual chains reorganize in a complex.
+  , flags    :: Maybe Flag -- ^Flags whether the entire is a precursor or/and a fragment.
   } deriving (Show, Eq, Ord)
 
 -- |Gene Name - the name(s) of the gene(s) that code for the stored

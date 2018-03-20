@@ -8,11 +8,46 @@ import           NeatInterpolation (text)
 import           Test.Hspec hiding (example)
 import           Test.QuickCheck
 
-import Data.Attoparsec.Text (parseOnly, endOfLine)
+import Data.Attoparsec.Text (parseOnly, endOfLine, parseTest)
 
 import Bio.Uniprot.Type
 import Bio.Uniprot.Parser
 
+idStr :: Text
+idStr = "ID   PDCD1_HUMAN             Reviewed;         288 AA."
+
+acStr :: Text
+acStr = "AC   Q15116; O00517; Q8IX89;"
+
+dtStr :: Text
+dtStr = [text|
+DT   01-NOV-1997, integrated into UniProtKB/Swiss-Prot.
+DT   17-APR-2007, sequence version 3.
+DT   28-FEB-2018, entry version 163.|]
+
+deStr :: Text
+deStr = [text|
+DE   RecName: Full=Programmed cell death protein 1;
+DE            Short=Protein PD-1;
+DE            Short=hPD-1;
+DE   AltName: CD_antigen=CD279;
+DE   Flags: Precursor;|]
+
+gnStr :: Text
+gnStr = "GN   Name=PDCD1; Synonyms=PD1;"
+
+sqStr :: Text
+sqStr = [text|
+SQ   SEQUENCE   288 AA;  31647 MW;  A5210FD40C304FB7 CRC64;
+     MQIPQAPWPV VWAVLQLGWR PGWFLDSPDR PWNPPTFSPA LLVVTEGDNA TFTCSFSNTS
+     ESFVLNWYRM SPSNQTDKLA AFPEDRSQPG QDCRFRVTQL PNGRDFHMSV VRARRNDSGT
+     YLCGAISLAP KAQIKESLRA ELRVTERRAE VPTAHPSPSP RPAGQFQTLV VGVVGGLLGS
+     LVLLVWVLAV ICSRAARGTI GARRTGQPLK EDPSAVPVFS VDYGELDFQW REKTPEPPVP
+     CVPEQTEYAT IVFPSGMGTS SPARRGSADG PRSAQPLRPE DGHCSWPL|]
+
+endStr :: Text
+endStr = "//"
+  
 example :: [Text]
 example = lines
   [text|
@@ -321,8 +356,7 @@ SQ   SEQUENCE   288 AA;  31647 MW;  A5210FD40C304FB7 CRC64;
      YLCGAISLAP KAQIKESLRA ELRVTERRAE VPTAHPSPSP RPAGQFQTLV VGVVGGLLGS
      LVLLVWVLAV ICSRAARGTI GARRTGQPLK EDPSAVPVFS VDYGELDFQW REKTPEPPVP
      CVPEQTEYAT IVFPSGMGTS SPARRGSADG PRSAQPLRPE DGHCSWPL
-//
-       |]
+//|]
 
 idAns :: ID
 idAns = ID "PDCD1_HUMAN" Reviewed 288
@@ -330,13 +364,40 @@ idAns = ID "PDCD1_HUMAN" Reviewed 288
 acAns :: AC
 acAns = AC ["Q15116", "O00517", "Q8IX89"]
 
+dtAns :: DT
+dtAns = DT "01-NOV-1997" "Swiss-Prot" "17-APR-2007" 3 "28-FEB-2018" 163
+
+deAns :: DE
+deAns = DE (Just (Name "Programmed cell death protein 1" ["Protein PD-1", "hPD-1"] []))
+           [CDAntigen "CD279"] [] [] [] (Just Precursor)
+
+sqAns :: SQ
+sqAns = SQ 288 31647 "A5210FD40C304FB7"
+           "MQIPQAPWPVVWAVLQLGWRPGWFLDSPDRPWNPPTFSPALLVVTEGDNATFTCSFSNTSESFVLNWYRMSPSNQTDKLAAFPEDRSQPGQDCRFRVTQLPNGRDFHMSVVRARRNDSGTYLCGAISLAPKAQIKESLRAELRVTERRAEVPTAHPSPSPRPAGQFQTLVVGVVGGLLGSLVLLVWVLAVICSRAARGTIGARRTGQPLKEDPSAVPVFSVDYGELDFQWREKTPEPPVPCVPEQTEYATIVFPSGMGTSSPARRGSADGPRSAQPLRPEDGHCSWPL"
+
 main :: IO ()
 main = hspec $ do
     describe "Parse PD1 example" $ do
       it "parses ID lines" $
-        parseOnly parseID (head example) `shouldBe` Right idAns
+        parseOnly parseID idStr `shouldBe` Right idAns
       it "parses AC lines" $ 
-        parseOnly parseAC (example !! 1) `shouldBe` Right acAns 
+        parseOnly parseAC acStr `shouldBe` Right acAns
+      it "parses DT lines" $
+        parseOnly parseDT dtStr `shouldBe` Right dtAns
+      it "parses DE lines" $
+        parseOnly parseDE deStr `shouldBe` Right deAns
+      it "parses SQ lines" $ do
+        parseOnly parseSQ sqStr `shouldBe` Right sqAns
       it "parses multiple lines" $ do
-        let parser = (,) <$> (parseID <* endOfLine) <*> parseAC
-        parseOnly parser (unlines . take 2 $ example) `shouldBe` Right (idAns, acAns)
+        let parser = (,,,,) <$> (parseID <* endOfLine)
+                            <*> (parseAC <* endOfLine)
+                            <*> (parseDT <* endOfLine)
+                            <*> (parseDE <* endOfLine)
+                            <*> (parseSQ <* endOfLine)
+                            <*   parseEnd
+        let text = unlines $ [idStr, acStr] ++
+                             lines dtStr ++
+                             lines deStr ++
+                             lines sqStr ++
+                             [endStr]
+        parseOnly parser text `shouldBe` Right (idAns, acAns, dtAns, deAns, sqAns)
