@@ -2,7 +2,8 @@
 {-# LANGUAGE RecordWildCards   #-}
 module Bio.Uniprot.Parser where
 
-import           Prelude              hiding (null)
+import           Prelude              hiding (null, init)
+import qualified Prelude as P (init, id)
 
 import           Bio.Uniprot.Type
 import           Control.Applicative  ((<|>), liftA2)
@@ -23,8 +24,7 @@ data NameType = RecName | AltName | SubName | Flags | None
 -- |Parses ID line of UniProt-KB text file.
 parseID :: Parser ID
 parseID = do
-    string "ID"
-    many1 space
+    string "ID   "
     entryName <- pack <$> many1 (satisfy $ inClass "A-Z0-9_")
     many1 space
     status <- (string "Reviewed" $> Reviewed) <|>
@@ -64,8 +64,7 @@ parseDT = do
   where
     parseOneDT :: Text -> Parser (Text, Text)
     parseOneDT txt = do
-        string "DT"
-        many1 space
+        string "DT   "
         day <- pack <$> many1 (satisfy $ inClass "A-Z0-9-")
         char ','
         many1 space
@@ -121,6 +120,7 @@ parseDE = do
         char ';'
         pure res
 
+-- |Parses DE lines of UniProt-KB text file.
 parseGN :: Parser [GN]
 parseGN = do
     string "GN   "
@@ -135,15 +135,19 @@ parseGN = do
     rest <- option [] $ string "and" *> endOfLine *> parseGN
     pure $ gn:rest
   where
+    -- |Parses `Name` item of GN line
     parseGNName :: Parser Text
-    parseGNName = parseGNItem "Name" (Prelude.id <$>)
+    parseGNName = parseGNItem "Name" (P.id <$>)
 
+    -- |Parses line break for multiline GN section
     parseGNOptionBreak :: Parser ()
-    parseGNOptionBreak = optional ((endOfLine *> string "GN   ") <|> " ") >> pure ()
+    parseGNOptionBreak = option () $ ((endOfLine *> string "GN   ") <|> " ") $> ()
 
+    -- |Parses any list item of GN line (like `Synonyms` or `ORFNames`)
     parseGNList :: Text -> Parser [Text]
     parseGNList name = parseGNItem name (splitOn ", " <$>)
 
+    -- |Parses one item of GN line
     parseGNItem :: Text -> (Parser Text -> Parser a) -> Parser a
     parseGNItem name f = do
         string name >> char '='
@@ -158,7 +162,7 @@ parseOS = OS . pack <$> parseOSStr
         string "OS   "
         namePart <- many1 (satisfy $ not . isEndOfLine)
         if last namePart == '.'
-          then pure $ Prelude.init namePart
+          then pure $ P.init namePart
           else do
               rest <- endOfLine *> parseOSStr
               pure $ namePart ++ rest
@@ -183,19 +187,91 @@ parseOG = parseOGNonPlasmid <|> (Plasmid <$> parseOGPlasmid)
     parseOGPlasmid = do
         string "OG   "
         name <- parseOnePlasmid
-        rest <- many' $ (string ", " <|> string ", and ") *> parseOnePlasmid
-        rest2 <- (char '.' $> []) <|> (endOfLine *> parseOGPlasmid)
+        let separator = string "," >> optional " and"
+        rest <- many' $ separator *> space *> parseOnePlasmid
+        rest2 <- (char '.' $> []) <|> (separator *> endOfLine *> parseOGPlasmid)
         pure $ name : rest ++ rest2
 
     parseOnePlasmid :: Parser Text
     parseOnePlasmid = do
-        string "Plasmid"
+        string "Plasmid "
         pack <$> many1 (satisfy $ liftA2 (&&) (notInClass ",.") (not . isEndOfLine))
+
+-- |Parser OG line of UniProt-KB text file.
+parseOC :: Parser OC
+parseOC = parseNodes "OC" OC
+
+-- |Parses OX lines of UniProt-KB text file.
+parseOX :: Parser OX
+parseOX = do
+    string "OX   "
+    databaseQualifier <- pack <$> many1 (notChar '=')
+    char '='
+    taxonomicCode <- pack <$> many1 (notChar ';')
+    char ';'
+    pure OX{..}
+
+-- |Parses OH line of UniProt-KB text file.
+parseOH :: Parser OH
+parseOH = do
+    string "OH   NCBI_TaxID="
+    taxId <- pack <$> many1 (notChar ';')
+    string "; "
+    hostName <- pack <$> many1 (notChar '.')
+    char '.'
+    pure OH{..}
+
+parseRef :: Parser [Reference]
+parseRef = undefined
+
+parseCC :: Parser [CC]
+parseCC = undefined
+
+parseDR :: Parser DR
+parseDR = do
+    string "DR   "
+    resourceAbbr <- parseToken
+    string "; "
+    resourceId <- parseToken
+    string "; "
+    optionalInfo' <- (:) <$> parseToken <*> many' (string "; " *> parseToken)
+    let optionalInfo = P.init optionalInfo' ++ [init . last $ optionalInfo']
+    pure DR{..}
+  where
+    parseToken :: Parser Text
+    parseToken = pack <$> many1 (satisfy $ liftA2 (&&) (notInClass ";") (not . isEndOfLine))
+
+-- |Parses PE line of UniProt-KB text file.
+parsePE :: Parser PE
+parsePE = (string "PE   1: Evidence at protein level" $> EvidenceAtProteinLevel) <|>
+          (string "PE   2: Evidence at transcript level" $> EvidenceAtTranscriptLevel) <|>
+          (string "PE   3: Inferred from homology" $> InferredFromHomology) <|>
+          (string "PE   4: Predicted" $> Predicted) <|>
+          (string "PE   5: Uncertain" $> Uncertain)
+
+-- |Parses KW lines of UniProt-KB text file.
+parseKW :: Parser KW
+parseKW = parseNodes "KW" KW
+
+parseFT :: Parser [FT]
+parseFT = do
+    string "FT   "
+    keyName <- pack <$> many1 (satisfy $ inClass "A-Z_")
+    many' space
+    pure undefined
+    -- pure FT{..}
+  where
+    parseFTEndpoint :: Parser Endpoint
+    parseFTEndpoint = (UncertainEP <$> (char '?' *> decimal)) <|>
+                      (NTerminalEP <$> (char '<' *> decimal)) <|>
+                      (CTerminalEP <$> (char '>' *> decimal)) <|>
+                      (ExactEP     <$> decimal) <|>
+                      (char '?' $> UnknownEP)
 
 -- |Parses SQ lines of UniProt-KB text file.
 parseSQ :: Parser SQ
 parseSQ = do
-    string "SQ" >> count 3 space >> string "SEQUENCE"
+    string "SQ   SEQUENCE"
     many1 space
     seqLength <- decimal
     space >> string "AA;"
@@ -235,3 +311,18 @@ parseAndSkip txt = do
 -- Right Nothing
 optional :: Parser a -> Parser (Maybe a)
 optional par = option Nothing (Just <$> par)
+
+-- |Parses lines, that contain nodes splitted by ';' and ended by '.'.
+parseNodes :: Text -> ([Text] -> a) -> Parser a
+parseNodes start f = do
+    string start >> count 3 space
+    name <- parseNode
+    rest <- many' $ do
+        string ";"
+        string " " <|> (endOfLine >> string start >> count 3 space >> pure "")
+        parseNode
+    char '.'
+    pure $ f (name:rest)
+  where
+    parseNode :: Parser Text
+    parseNode = pack <$> many1 (satisfy $ liftA2 (&&) (notInClass ";.") (not . isEndOfLine))

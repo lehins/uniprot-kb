@@ -5,10 +5,10 @@ import Prelude hiding (lines, unlines)
 
 import           Data.Text         (Text, lines, unlines)
 import           NeatInterpolation (text)
-import           Test.Hspec hiding (example)
+import           Test.Hspec
 import           Test.QuickCheck
 
-import Data.Attoparsec.Text (parseOnly, endOfLine, parseTest)
+import Data.Attoparsec.Text (parseOnly, endOfLine, parseTest, many')
 
 import Bio.Uniprot.Type
 import Bio.Uniprot.Parser
@@ -39,43 +39,25 @@ gnStr = "GN   Name=PDCD1; Synonyms=PD1;"
 osStr :: Text
 osStr = "OS   Homo sapiens (Human)."
 
+ogStr :: Text
+ogStr = [text|
+OG   Plasmid R6-5, Plasmid IncFII R100 (NR1), and
+OG   Plasmid IncFII R1-19 (R1 drd-19).|]
+
 ocStr :: Text
 ocStr = [text|
 OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
 OC   Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
 OC   Catarrhini; Hominidae; Homo.|]
 
-sqStr :: Text
-sqStr = [text|
-SQ   SEQUENCE   288 AA;  31647 MW;  A5210FD40C304FB7 CRC64;
-     MQIPQAPWPV VWAVLQLGWR PGWFLDSPDR PWNPPTFSPA LLVVTEGDNA TFTCSFSNTS
-     ESFVLNWYRM SPSNQTDKLA AFPEDRSQPG QDCRFRVTQL PNGRDFHMSV VRARRNDSGT
-     YLCGAISLAP KAQIKESLRA ELRVTERRAE VPTAHPSPSP RPAGQFQTLV VGVVGGLLGS
-     LVLLVWVLAV ICSRAARGTI GARRTGQPLK EDPSAVPVFS VDYGELDFQW REKTPEPPVP
-     CVPEQTEYAT IVFPSGMGTS SPARRGSADG PRSAQPLRPE DGHCSWPL|]
+oxStr :: Text
+oxStr = "OX   NCBI_TaxID=9606;"
 
-endStr :: Text
-endStr = "//"
-  
-example :: [Text]
-example = lines
-  [text|
-ID   PDCD1_HUMAN             Reviewed;         288 AA.
-AC   Q15116; O00517; Q8IX89;
-DT   01-NOV-1997, integrated into UniProtKB/Swiss-Prot.
-DT   17-APR-2007, sequence version 3.
-DT   28-FEB-2018, entry version 163.
-DE   RecName: Full=Programmed cell death protein 1;
-DE            Short=Protein PD-1;
-DE            Short=hPD-1;
-DE   AltName: CD_antigen=CD279;
-DE   Flags: Precursor;
-GN   Name=PDCD1; Synonyms=PD1;
-OS   Homo sapiens (Human).
-OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
-OC   Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
-OC   Catarrhini; Hominidae; Homo.
-OX   NCBI_TaxID=9606;
+ohStr :: Text
+ohStr = "OH   NCBI_TaxID=9536; Cercopithecus hamlyni (Owl-faced monkey) (Hamlyn's monkey)."
+
+refStr :: Text
+refStr = [text|
 RN   [1]
 RP   NUCLEOTIDE SEQUENCE [GENOMIC DNA].
 RX   PubMed=7851902; DOI=10.1006/geno.1994.1562;
@@ -178,7 +160,10 @@ RX   PubMed=21276005; DOI=10.1111/j.1749-6632.2010.05919.x;
 RA   Fife B.T., Pauken K.E.;
 RT   "The role of the PD-1 pathway in autoimmunity and peripheral
 RT   tolerance.";
-RL   Ann. N. Y. Acad. Sci. 1217:45-59(2011).
+RL   Ann. N. Y. Acad. Sci. 1217:45-59(2011).|]
+
+ccStr :: Text
+ccStr = [text|
 CC   -!- FUNCTION: Inhibitory cell surface receptor involved in the
 CC       regulation of T-cell function during immunity and tolerance. Upon
 CC       ligand binding, inhibits T-cell effector functions in an antigen-
@@ -202,7 +187,20 @@ CC       marked by a wide range of system dysfunctions, an elevated
 CC       erythrocyte sedimentation rate, and the formation of LE cells in
 CC       the blood or bone marrow. {ECO:0000269|PubMed:12402038}.
 CC       Note=Disease susceptibility is associated with variations
-CC       affecting the gene represented in this entry.
+CC       affecting the gene represented in this entry.|]
+
+peStr :: Text
+peStr = "PE   1: Evidence at protein level;"
+
+kwStr :: Text
+kwStr = [text|
+KW   3D-structure; Apoptosis; Complete proteome; Disulfide bond;
+KW   Glycoprotein; Immunity; Immunoglobulin domain; Membrane; Polymorphism;
+KW   Reference proteome; Signal; Systemic lupus erythematosus;
+KW   Transmembrane; Transmembrane helix.|]
+
+drStr :: Text
+drStr = [text|
 DR   EMBL; L27440; AAC41700.1; -; Genomic_DNA.
 DR   EMBL; U64863; AAC51773.1; -; mRNA.
 DR   EMBL; AF363458; AAN64003.1; -; Genomic_DNA.
@@ -318,12 +316,10 @@ DR   Pfam; PF07686; V-set; 1.
 DR   SMART; SM00409; IG; 1.
 DR   SMART; SM00406; IGv; 1.
 DR   SUPFAM; SSF48726; SSF48726; 1.
-DR   PROSITE; PS50835; IG_LIKE; 1.
-PE   1: Evidence at protein level;
-KW   3D-structure; Apoptosis; Complete proteome; Disulfide bond;
-KW   Glycoprotein; Immunity; Immunoglobulin domain; Membrane; Polymorphism;
-KW   Reference proteome; Signal; Systemic lupus erythematosus;
-KW   Transmembrane; Transmembrane helix.
+DR   PROSITE; PS50835; IG_LIKE; 1.|]
+
+ftStr :: Text
+ftStr = [text|
 FT   SIGNAL        1     20       {ECO:0000255}.
 FT   CHAIN        21    288       Programmed cell death protein 1.
 FT                                /FTId=PRO_0000014892.
@@ -358,14 +354,19 @@ FT   STRAND      103    112       {ECO:0000244|PDB:5GGS}.
 FT   HELIX       115    117       {ECO:0000244|PDB:5GGS}.
 FT   STRAND      119    131       {ECO:0000244|PDB:5GGS}.
 FT   STRAND      134    136       {ECO:0000244|PDB:5GGS}.
-FT   STRAND      140    145       {ECO:0000244|PDB:5GGS}.
+FT   STRAND      140    145       {ECO:0000244|PDB:5GGS}.|]
+  
+sqStr :: Text
+sqStr = [text|
 SQ   SEQUENCE   288 AA;  31647 MW;  A5210FD40C304FB7 CRC64;
      MQIPQAPWPV VWAVLQLGWR PGWFLDSPDR PWNPPTFSPA LLVVTEGDNA TFTCSFSNTS
      ESFVLNWYRM SPSNQTDKLA AFPEDRSQPG QDCRFRVTQL PNGRDFHMSV VRARRNDSGT
      YLCGAISLAP KAQIKESLRA ELRVTERRAE VPTAHPSPSP RPAGQFQTLV VGVVGGLLGS
      LVLLVWVLAV ICSRAARGTI GARRTGQPLK EDPSAVPVFS VDYGELDFQW REKTPEPPVP
-     CVPEQTEYAT IVFPSGMGTS SPARRGSADG PRSAQPLRPE DGHCSWPL
-//|]
+     CVPEQTEYAT IVFPSGMGTS SPARRGSADG PRSAQPLRPE DGHCSWPL|]
+
+endStr :: Text
+endStr = "//"
 
 idAns :: ID
 idAns = ID "PDCD1_HUMAN" Reviewed 288
@@ -386,9 +387,163 @@ gnAns = [GN (Just "PDCD1") ["PD1"] [] []]
 osAns :: OS
 osAns = OS "Homo sapiens (Human)"
 
+ogAns :: OG
+ogAns = Plasmid ["R6-5", "IncFII R100 (NR1)", "IncFII R1-19 (R1 drd-19)"]
+
+ocAns :: OC
+ocAns = OC ["Eukaryota", "Metazoa", "Chordata", "Craniata",
+            "Vertebrata", "Euteleostomi", "Mammalia", "Eutheria",
+            "Euarchontoglires", "Primates", "Haplorrhini", "Catarrhini",
+            "Hominidae", "Homo"]
+
+ohAns :: OH
+ohAns = OH "9536" "Cercopithecus hamlyni (Owl-faced monkey) (Hamlyn's monkey)"
+
+oxAns :: OX
+oxAns = OX "NCBI_TaxID" "9606"
+
+refAns :: [Reference]
+refAns = undefined
+
+ccAns :: [CC]
+ccAns = undefined
+
+drAns :: [DR]
+drAns = [DR {resourceAbbr = "EMBL", resourceId = "L27440", optionalInfo = ["AAC41700.1","-","Genomic_DNA"]},
+         DR {resourceAbbr = "EMBL", resourceId = "U64863", optionalInfo = ["AAC51773.1","-","mRNA"]},
+         DR {resourceAbbr = "EMBL", resourceId = "AF363458", optionalInfo = ["AAN64003.1","-","Genomic_DNA"]},
+         DR {resourceAbbr = "EMBL", resourceId = "AY238517", optionalInfo = ["AAO63583.1","-","mRNA"]},
+         DR {resourceAbbr = "EMBL", resourceId = "EF064716", optionalInfo = ["ABK41899.1","-","Genomic_DNA"]},
+         DR {resourceAbbr = "EMBL", resourceId = "AK313848", optionalInfo = ["BAG36577.1","-","mRNA"]},
+         DR {resourceAbbr = "EMBL", resourceId = "CH471063", optionalInfo = ["EAW71298.1","-","Genomic_DNA"]},
+         DR {resourceAbbr = "EMBL", resourceId = "BC074740", optionalInfo = ["AAH74740.1","-","mRNA"]},
+         DR {resourceAbbr = "CCDS", resourceId = "CCDS33428.1", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PIR", resourceId = "A55737", optionalInfo = ["A55737"]},
+         DR {resourceAbbr = "RefSeq", resourceId = "NP_005009.2", optionalInfo = ["NM_005018.2"]},
+         DR {resourceAbbr = "UniGene", resourceId = "Hs.158297", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PDB", resourceId = "2M2D", optionalInfo = ["NMR","-","A=34-150"]},
+         DR {resourceAbbr = "PDB", resourceId = "3RRQ", optionalInfo = ["X-ray","2.10 A","A=32-160"]},
+         DR {resourceAbbr = "PDB", resourceId = "4ZQK", optionalInfo = ["X-ray","2.45 A","B=33-150"]},
+         DR {resourceAbbr = "PDB", resourceId = "5B8C", optionalInfo = ["X-ray","2.15 A","C/F/I/L=32-160"]},
+         DR {resourceAbbr = "PDB", resourceId = "5GGR", optionalInfo = ["X-ray","3.30 A","Y/Z=26-150"]},
+         DR {resourceAbbr = "PDB", resourceId = "5GGS", optionalInfo = ["X-ray","2.00 A","Y/Z=26-148"]},
+         DR {resourceAbbr = "PDB", resourceId = "5IUS", optionalInfo = ["X-ray","2.89 A","A/B=26-146"]},
+         DR {resourceAbbr = "PDB", resourceId = "5JXE", optionalInfo = ["X-ray","2.90 A","A/B=33-146"]},
+         DR {resourceAbbr = "PDB", resourceId = "5WT9", optionalInfo = ["X-ray","2.40 A","G=1-167"]},
+         DR {resourceAbbr = "PDBsum", resourceId = "2M2D", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PDBsum", resourceId = "3RRQ", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PDBsum", resourceId = "4ZQK", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PDBsum", resourceId = "5B8C", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PDBsum", resourceId = "5GGR", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PDBsum", resourceId = "5GGS", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PDBsum", resourceId = "5IUS", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PDBsum", resourceId = "5JXE", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PDBsum", resourceId = "5WT9", optionalInfo = ["-"]},
+         DR {resourceAbbr = "ProteinModelPortal", resourceId = "Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "SMR", resourceId = "Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "BioGrid", resourceId = "111160", optionalInfo = ["61"]},
+         DR {resourceAbbr = "DIP", resourceId = "DIP-44126N", optionalInfo = ["-"]},
+         DR {resourceAbbr = "IntAct", resourceId = "Q15116", optionalInfo = ["5"]},
+         DR {resourceAbbr = "MINT", resourceId = "Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "STRING", resourceId = "9606.ENSP00000335062", optionalInfo = ["-"]},
+         DR {resourceAbbr = "ChEMBL", resourceId = "CHEMBL3307223", optionalInfo = ["-"]},
+         DR {resourceAbbr = "DrugBank", resourceId = "DB05916", optionalInfo = ["CT-011"]},
+         DR {resourceAbbr = "DrugBank", resourceId = "DB09035", optionalInfo = ["Nivolumab"]},
+         DR {resourceAbbr = "DrugBank", resourceId = "DB09037", optionalInfo = ["Pembrolizumab"]},
+         DR {resourceAbbr = "GuidetoPHARMACOLOGY", resourceId = "2760", optionalInfo = ["-"]},
+         DR {resourceAbbr = "iPTMnet", resourceId = "Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PhosphoSitePlus", resourceId = "Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "BioMuta", resourceId = "PDCD1", optionalInfo = ["-"]},
+         DR {resourceAbbr = "DMDM", resourceId = "145559515", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PaxDb", resourceId = "Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PeptideAtlas", resourceId = "Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PRIDE", resourceId = "Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "DNASU", resourceId = "5133", optionalInfo = ["-"]},
+         DR {resourceAbbr = "Ensembl", resourceId = "ENST00000334409", optionalInfo = ["ENSP00000335062","ENSG00000188389"]},
+         DR {resourceAbbr = "Ensembl", resourceId = "ENST00000618185", optionalInfo = ["ENSP00000480684","ENSG00000276977"]},
+         DR {resourceAbbr = "GeneID", resourceId = "5133", optionalInfo = ["-"]},
+         DR {resourceAbbr = "KEGG", resourceId = "hsa:5133", optionalInfo = ["-"]},
+         DR {resourceAbbr = "UCSC", resourceId = "uc002wcq.5", optionalInfo = ["human"]},
+         DR {resourceAbbr = "CTD", resourceId = "5133", optionalInfo = ["-"]},
+         DR {resourceAbbr = "DisGeNET", resourceId = "5133", optionalInfo = ["-"]},
+         DR {resourceAbbr = "EuPathDB", resourceId = "HostDB:ENSG00000188389.10", optionalInfo = ["-"]},
+         DR {resourceAbbr = "GeneCards", resourceId = "PDCD1", optionalInfo = ["-"]},
+         DR {resourceAbbr = "H-InvDB", resourceId = "HIX0030684", optionalInfo = ["-"]},
+         DR {resourceAbbr = "HGNC", resourceId = "HGNC:8760", optionalInfo = ["PDCD1"]},
+         DR {resourceAbbr = "HPA", resourceId = "CAB038418", optionalInfo = ["-"]},
+         DR {resourceAbbr = "HPA", resourceId = "HPA035981", optionalInfo = ["-"]},
+         DR {resourceAbbr = "MalaCards", resourceId = "PDCD1", optionalInfo = ["-"]},
+         DR {resourceAbbr = "MIM", resourceId = "109100", optionalInfo = ["phenotype"]},
+         DR {resourceAbbr = "MIM", resourceId = "600244", optionalInfo = ["gene"]},
+         DR {resourceAbbr = "MIM", resourceId = "605218", optionalInfo = ["phenotype"]},
+         DR {resourceAbbr = "neXtProt", resourceId = "NX_Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "OpenTargets", resourceId = "ENSG00000188389", optionalInfo = ["-"]},
+         DR {resourceAbbr = "Orphanet", resourceId = "802", optionalInfo = ["Multiple sclerosis"]},
+         DR {resourceAbbr = "Orphanet", resourceId = "536", optionalInfo = ["Systemic lupus erythematosus"]},
+         DR {resourceAbbr = "PharmGKB", resourceId = "PA33110", optionalInfo = ["-"]},
+         DR {resourceAbbr = "eggNOG", resourceId = "ENOG410J26W", optionalInfo = ["Eukaryota"]},
+         DR {resourceAbbr = "eggNOG", resourceId = "ENOG41116U6", optionalInfo = ["LUCA"]},
+         DR {resourceAbbr = "GeneTree", resourceId = "ENSGT00390000013662", optionalInfo = ["-"]},
+         DR {resourceAbbr = "HOGENOM", resourceId = "HOG000253959", optionalInfo = ["-"]},
+         DR {resourceAbbr = "HOVERGEN", resourceId = "HBG053534", optionalInfo = ["-"]},
+         DR {resourceAbbr = "InParanoid", resourceId = "Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "KO", resourceId = "K06744", optionalInfo = ["-"]},
+         DR {resourceAbbr = "OMA", resourceId = "DFQWREK", optionalInfo = ["-"]},
+         DR {resourceAbbr = "OrthoDB", resourceId = "EOG091G0EE8", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PhylomeDB", resourceId = "Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "TreeFam", resourceId = "TF336181", optionalInfo = ["-"]},
+         DR {resourceAbbr = "Reactome", resourceId = "R-HSA-389948", optionalInfo = ["PD-1 signaling"]},
+         DR {resourceAbbr = "SIGNOR", resourceId = "Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "ChiTaRS", resourceId = "PDCD1", optionalInfo = ["human"]},
+         DR {resourceAbbr = "GeneWiki", resourceId = "Programmed_cell_death_1", optionalInfo = ["-"]},
+         DR {resourceAbbr = "GenomeRNAi", resourceId = "5133", optionalInfo = ["-"]},
+         DR {resourceAbbr = "PRO", resourceId = "PR:Q15116", optionalInfo = ["-"]},
+         DR {resourceAbbr = "Proteomes", resourceId = "UP000005640", optionalInfo = ["Chromosome 2"]},
+         DR {resourceAbbr = "Bgee", resourceId = "ENSG00000188389", optionalInfo = ["-"]},
+         DR {resourceAbbr = "CleanEx", resourceId = "HS_PDCD1", optionalInfo = ["-"]},
+         DR {resourceAbbr = "ExpressionAtlas", resourceId = "Q15116", optionalInfo = ["baseline and differential"]},
+         DR {resourceAbbr = "Genevisible", resourceId = "Q15116", optionalInfo = ["HS"]},
+         DR {resourceAbbr = "GO", resourceId = "GO:0009897", optionalInfo = ["C:external side of plasma membrane","IEA:Ensembl"]},
+         DR {resourceAbbr = "GO", resourceId = "GO:0016021", optionalInfo = ["C:integral component of membrane","IEA:UniProtKB-KW"]},
+         DR {resourceAbbr = "GO", resourceId = "GO:0005886", optionalInfo = ["C:plasma membrane","TAS:Reactome"]},
+         DR {resourceAbbr = "GO", resourceId = "GO:0004871", optionalInfo = ["F:signal transducer activity","TAS:ProtInc"]},
+         DR {resourceAbbr = "GO", resourceId = "GO:0006915", optionalInfo = ["P:apoptotic process","TAS:ProtInc"]},
+         DR {resourceAbbr = "GO", resourceId = "GO:0006959", optionalInfo = ["P:humoral immune response","TAS:ProtInc"]},
+         DR {resourceAbbr = "GO", resourceId = "GO:0007275", optionalInfo = ["P:multicellular organism development","TAS:ProtInc"]},
+         DR {resourceAbbr = "GO", resourceId = "GO:0043066", optionalInfo = ["P:negative regulation of apoptotic process","IEA:Ensembl"]},
+         DR {resourceAbbr = "GO", resourceId = "GO:0002644", optionalInfo = ["P:negative regulation of tolerance induction","IEA:Ensembl"]},
+         DR {resourceAbbr = "GO", resourceId = "GO:0070234", optionalInfo = ["P:positive regulation of T cell apoptotic process","IDA:UniProtKB"]},
+         DR {resourceAbbr = "GO", resourceId = "GO:0031295", optionalInfo = ["P:T cell costimulation","TAS:Reactome"]},
+         DR {resourceAbbr = "Gene3D", resourceId = "2.60.40.10", optionalInfo = ["-","1"]},
+         DR {resourceAbbr = "InterPro", resourceId = "IPR007110", optionalInfo = ["Ig-like_dom"]},
+         DR {resourceAbbr = "InterPro", resourceId = "IPR036179", optionalInfo = ["Ig-like_dom_sf"]},
+         DR {resourceAbbr = "InterPro", resourceId = "IPR013783", optionalInfo = ["Ig-like_fold"]},
+         DR {resourceAbbr = "InterPro", resourceId = "IPR003599", optionalInfo = ["Ig_sub"]},
+         DR {resourceAbbr = "InterPro", resourceId = "IPR013106", optionalInfo = ["Ig_V-set"]},
+         DR {resourceAbbr = "Pfam", resourceId = "PF07686", optionalInfo = ["V-set","1"]},
+         DR {resourceAbbr = "SMART", resourceId = "SM00409", optionalInfo = ["IG","1"]},
+         DR {resourceAbbr = "SMART", resourceId = "SM00406", optionalInfo = ["IGv","1"]},
+         DR {resourceAbbr = "SUPFAM", resourceId = "SSF48726", optionalInfo = ["SSF48726","1"]},
+         DR {resourceAbbr = "PROSITE", resourceId = "PS50835", optionalInfo = ["IG_LIKE","1"]}]
+
+peAns :: PE
+peAns = EvidenceAtProteinLevel
+
+kwAns :: KW
+kwAns = KW ["3D-structure", "Apoptosis", "Complete proteome", "Disulfide bond",
+            "Glycoprotein", "Immunity", "Immunoglobulin domain", "Membrane", "Polymorphism",
+            "Reference proteome", "Signal", "Systemic lupus erythematosus",
+            "Transmembrane", "Transmembrane helix"]
+
+ftAns :: [FT]
+ftAns = undefined
+
 sqAns :: SQ
 sqAns = SQ 288 31647 "A5210FD40C304FB7"
            "MQIPQAPWPVVWAVLQLGWRPGWFLDSPDRPWNPPTFSPALLVVTEGDNATFTCSFSNTSESFVLNWYRMSPSNQTDKLAAFPEDRSQPGQDCRFRVTQLPNGRDFHMSVVRARRNDSGTYLCGAISLAPKAQIKESLRAELRVTERRAEVPTAHPSPSPRPAGQFQTLVVGVVGGLLGSLVLLVWVLAVICSRAARGTIGARRTGQPLKEDPSAVPVFSVDYGELDFQWREKTPEPPVPCVPEQTEYATIVFPSGMGTSSPARRGSADGPRSAQPLRPEDGHCSWPL"
+
+endAns :: ()
+endAns = ()
 
 main :: IO ()
 main = hspec $ do
@@ -405,23 +560,50 @@ main = hspec $ do
         parseOnly parseGN gnStr `shouldBe` Right gnAns
       it "parses OS lines" $
         parseOnly parseOS osStr `shouldBe` Right osAns
+      it "parses OG lines (non-PD1)" $
+        parseOnly parseOG ogStr `shouldBe` Right ogAns
+      it "parses OC lines" $
+        parseOnly parseOC ocStr `shouldBe` Right ocAns
+      it "parses OX lines (non-PD1)" $
+        parseOnly parseOX oxStr `shouldBe` Right oxAns
+      it "parses OH lines (non-PD1)" $
+        parseOnly parseOH ohStr `shouldBe` Right ohAns
+      it "parses REF lines" $
+        parseOnly parseRef refStr `shouldBe` Right refAns
+      it "parses CC lines" $
+        parseOnly parseCC ccStr `shouldBe` Right ccAns
+      it "parses DR lines" $ do
+        let parseManyDR = (:) <$> parseDR <*> many' (endOfLine *> parseDR)
+        parseOnly parseManyDR drStr `shouldBe` Right drAns
+      it "parses PE lines" $
+        parseOnly parsePE peStr `shouldBe` Right peAns
+      it "parses KW lines" $
+        parseOnly parseKW kwStr `shouldBe` Right kwAns
+      it "parses FT lines" $
+        parseOnly parseFT ftStr `shouldBe` Right ftAns
       it "parses SQ lines" $ do
         parseOnly parseSQ sqStr `shouldBe` Right sqAns
+      it "parses End lines" $
+        parseOnly parseEnd endStr `shouldBe` Right endAns
       it "parses multiple lines" $ do
-        let parser = (,,,,,,) <$> (parseID <* endOfLine)
-                              <*> (parseAC <* endOfLine)
-                              <*> (parseDT <* endOfLine)
-                              <*> (parseDE <* endOfLine)
-                              <*> (parseGN <* endOfLine)
-                              <*> (parseOS <* endOfLine)
-                              <*> (parseSQ <* endOfLine)
-                              <*   parseEnd
+        let parser = (,,,,,,,,) <$>          (parseID <* endOfLine)
+                                <*>          (parseAC <* endOfLine)
+                                <*>          (parseDT <* endOfLine)
+                                <*>          (parseDE <* endOfLine)
+                                <*>          (parseGN <* endOfLine)
+                                <*>          (parseOS <* endOfLine)
+                                <*> optional (parseOG <* endOfLine)
+                                <*> optional (parseOC <* endOfLine)
+                                <*>          (parseSQ <* endOfLine)
+                                <*           parseEnd
         let text = unlines $ [idStr, acStr] ++
                              lines dtStr ++
                              lines deStr ++
                              [gnStr] ++
                              lines osStr ++
+                             lines ocStr ++
                              lines sqStr ++
                              [endStr]
         parseOnly parser text `shouldBe`
-          Right (idAns, acAns, dtAns, deAns, gnAns, osAns, sqAns)
+          Right (idAns, acAns, dtAns, deAns,
+                 gnAns, osAns, Nothing, Just ocAns, sqAns)

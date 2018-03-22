@@ -145,8 +145,8 @@ data OX = OX
 -- susceptible to be infected by a virus. Appears only in viral
 -- entries.
 data OH = OH
-  { taxId    :: Text
-  , hostName :: Text
+  { taxId    :: Text -- ^
+  , hostName :: Text -- ^
   } deriving (Show, Eq, Ord)
 
 -- |Reference Number - a sequential number to each reference
@@ -246,12 +246,19 @@ newtype KW = KW
   { keywords :: [Text]
   } deriving (Show, Eq, Ord)
 
+data Endpoint = ExactEP Int
+              | NTerminalEP Int
+              | CTerminalEP Int
+              | UncertainEP Int
+              | UnknownEP
+  deriving (Show, Eq, Ord)
+
 -- |Feature Table - means for the annotation of the sequence data.
 data FT = FT
-  { keyName     :: Text -- ^Key name.
-  , fromEP      :: Int  -- ^'From' endpoint.
-  , toEP        :: Int  -- ^'To' endpoint.
-  , description :: Text -- ^Description.
+  { keyName     :: Text     -- ^Key name.
+  , fromEP      :: Endpoint -- ^'From' endpoint.
+  , toEP        :: Endpoint -- ^'To' endpoint.
+  , description :: [Text]   -- ^Description.
   } deriving (Show, Eq, Ord)
 
 -- |SeQuence header - sequence data and a quick summary of its content.
@@ -282,9 +289,9 @@ data Record = Record
   , gn   :: [GN]
   , os   :: OS
   , og   :: Maybe OG
-  , oc   :: Maybe OC
+  , oc   :: OC
   , ox   :: Maybe OX
-  , oh   :: Maybe OH
+  , oh   :: [OH]
   , refs :: [Reference]
   , cc   :: CC
   , dr   :: [DR]
