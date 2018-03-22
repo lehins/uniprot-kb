@@ -36,6 +36,15 @@ DE   Flags: Precursor;|]
 gnStr :: Text
 gnStr = "GN   Name=PDCD1; Synonyms=PD1;"
 
+osStr :: Text
+osStr = "OS   Homo sapiens (Human)."
+
+ocStr :: Text
+ocStr = [text|
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+OC   Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini;
+OC   Catarrhini; Hominidae; Homo.|]
+
 sqStr :: Text
 sqStr = [text|
 SQ   SEQUENCE   288 AA;  31647 MW;  A5210FD40C304FB7 CRC64;
@@ -371,6 +380,12 @@ deAns :: DE
 deAns = DE (Just (Name "Programmed cell death protein 1" ["Protein PD-1", "hPD-1"] []))
            [CDAntigen "CD279"] [] [] [] (Just Precursor)
 
+gnAns :: [GN]
+gnAns = [GN (Just "PDCD1") ["PD1"] [] []]
+
+osAns :: OS
+osAns = OS "Homo sapiens (Human)"
+
 sqAns :: SQ
 sqAns = SQ 288 31647 "A5210FD40C304FB7"
            "MQIPQAPWPVVWAVLQLGWRPGWFLDSPDRPWNPPTFSPALLVVTEGDNATFTCSFSNTSESFVLNWYRMSPSNQTDKLAAFPEDRSQPGQDCRFRVTQLPNGRDFHMSVVRARRNDSGTYLCGAISLAPKAQIKESLRAELRVTERRAEVPTAHPSPSPRPAGQFQTLVVGVVGGLLGSLVLLVWVLAVICSRAARGTIGARRTGQPLKEDPSAVPVFSVDYGELDFQWREKTPEPPVPCVPEQTEYATIVFPSGMGTSSPARRGSADGPRSAQPLRPEDGHCSWPL"
@@ -386,18 +401,27 @@ main = hspec $ do
         parseOnly parseDT dtStr `shouldBe` Right dtAns
       it "parses DE lines" $
         parseOnly parseDE deStr `shouldBe` Right deAns
+      it "parses GN lines" $
+        parseOnly parseGN gnStr `shouldBe` Right gnAns
+      it "parses OS lines" $
+        parseOnly parseOS osStr `shouldBe` Right osAns
       it "parses SQ lines" $ do
         parseOnly parseSQ sqStr `shouldBe` Right sqAns
       it "parses multiple lines" $ do
-        let parser = (,,,,) <$> (parseID <* endOfLine)
-                            <*> (parseAC <* endOfLine)
-                            <*> (parseDT <* endOfLine)
-                            <*> (parseDE <* endOfLine)
-                            <*> (parseSQ <* endOfLine)
-                            <*   parseEnd
+        let parser = (,,,,,,) <$> (parseID <* endOfLine)
+                              <*> (parseAC <* endOfLine)
+                              <*> (parseDT <* endOfLine)
+                              <*> (parseDE <* endOfLine)
+                              <*> (parseGN <* endOfLine)
+                              <*> (parseOS <* endOfLine)
+                              <*> (parseSQ <* endOfLine)
+                              <*   parseEnd
         let text = unlines $ [idStr, acStr] ++
                              lines dtStr ++
                              lines deStr ++
+                             [gnStr] ++
+                             lines osStr ++
                              lines sqStr ++
                              [endStr]
-        parseOnly parser text `shouldBe` Right (idAns, acAns, dtAns, deAns, sqAns)
+        parseOnly parser text `shouldBe`
+          Right (idAns, acAns, dtAns, deAns, gnAns, osAns, sqAns)

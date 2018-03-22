@@ -97,10 +97,10 @@ data DE = DE
 -- |Gene Name - the name(s) of the gene(s) that code for the stored
 -- protein sequence.
 data GN = GN
-  { geneName          :: Text   -- ^The name used to represent a gene.
-  , synonyms          :: [Text] -- ^Other (unofficial) names of a gene.
-  , orderedLocusNames :: [Text] -- ^A name used to represent an ORF in a completely sequenced genome or chromosome.
-  , orfNames          :: [Text] -- ^A name temporarily attributed by a sequencing project to an open reading frame.
+  { geneName          :: Maybe Text -- ^The name used to represent a gene.
+  , synonyms          :: [Text]     -- ^Other (unofficial) names of a gene.
+  , orderedLocusNames :: [Text]     -- ^A name used to represent an ORF in a completely sequenced genome or chromosome.
+  , orfNames          :: [Text]     -- ^A name temporarily attributed by a sequencing project to an open reading frame.
   } deriving (Show, Eq, Ord)
 
 -- |Organism Species - the organism which was the source of the
@@ -109,11 +109,24 @@ newtype OS = OS
   { specie :: Text
   } deriving (Show, Eq, Ord)
 
+-- |A enum of possible plastid types, based on either taxonomic
+-- lineage or photosynthetic capacity.
+data Plastid = PlastidSimple                  -- ^The term Plastid is used when the capacities of the organism are unclear; for example in the parasitic plants of the Cuscuta lineage, where sometimes young tissue is photosynthetic.
+             | PlastidApicoplast              -- ^Apicoplasts are the plastids found in Apicocomplexa parasites such as Eimeria, Plasmodium and Toxoplasma; they are not photosynthetic.
+             | PlastidChloroplast             -- ^Chloroplasts are the plastids found in all land plants and algae with the exception of the glaucocystophyte algae (see below). Chloroplasts in green tissue are photosynthetic; in other tissues they may not be photosynthetic and then may also have secondary information relating to subcellular location (e.g. amyloplasts, chromoplasts).
+             | PlastidOrganellarChromatophore -- ^Chloroplasts are the plastids found in all land plants and algae with the exception of the glaucocystophyte algae (see below). Chloroplasts in green tissue are photosynthetic; in other tissues they may not be photosynthetic and then may also have secondary information relating to subcellular location (e.g. amyloplasts, chromoplasts).
+             | PlastidCyanelle                -- ^Cyanelles are the plastids found in the glaucocystophyte algae. They are also photosynthetic but their plastid has a vestigial cell wall between the 2 envelope membranes.
+             | PlastidNonPhotosynthetic       -- ^Non-photosynthetic plastid is used when the plastid in question derives from a photosynthetic lineage but the plastid in question is missing essential genes. Some examples are Aneura mirabilis, Epifagus virginiana, Helicosporidium (a liverwort, higher plant and green alga respectively).
+  deriving (Show, Eq, Ord, Bounded, Enum)
+
 -- |OrGanelle - indicates if the gene coding for a protein originates
 -- from mitochondria, a plastid, a nucleomorph or a plasmid.
-newtype OG = OG
-  { organellas :: [Text]
-  } deriving (Show, Eq, Ord)
+data OG = Hydrogenosome   -- ^Hydrogenosomes are membrane-enclosed redox organelles found in some anaerobic unicellular eukaryotes which contain hydrogenase and produce hydrogen and ATP by glycolysis. They are thought to have evolved from mitochondria; most hydrogenosomes lack a genome, but some like (e.g. the anaerobic ciliate Nyctotherus ovalis) have retained a rudimentary genome.
+        | Mitochondrion   -- ^Mitochondria are redox-active membrane-bound organelles found in the cytoplasm of most eukaryotic cells. They are the site of sthe reactions of oxidative phosphorylation, which results in the formation of ATP.
+        | Nucleomorph     -- ^Nucleomorphs are reduced vestigal nuclei found in the plastids of cryptomonad and chlorachniophyte algae. The plastids originate from engulfed eukaryotic phototrophs.
+        | Plasmid [Text]  -- ^Plasmid with a specific name. If an entry reports the sequence of a protein identical in a number of plasmids, the names of these plasmids will all be listed.
+        | Plastid Plastid -- ^Plastids are classified based on either their taxonomic lineage or in some cases on their photosynthetic capacity.
+  deriving (Show, Eq, Ord)
 
 -- |Organism Classification - the taxonomic classification of the
 -- source organism.
@@ -267,7 +280,7 @@ data Record = Record
   , dt   :: DT
   , de   :: DE
   , gn   :: [GN]
-  , os   :: [OS]
+  , os   :: OS
   , og   :: Maybe OG
   , oc   :: Maybe OC
   , ox   :: Maybe OX

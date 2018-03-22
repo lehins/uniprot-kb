@@ -9,3 +9,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 * All Uniprot-KB datalines described
 * Parser for ID, AC, DT, DE (w/o Includes and Contains) and SQ lines
+* Parser for GN, OS and OG lines
