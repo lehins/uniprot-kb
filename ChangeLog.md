@@ -7,7 +7,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-* All Uniprot-KB datalines described
-* Parser for ID, AC, DT, DE (w/o Includes and Contains) and SQ lines
-* Parser for GN, OS and OG lines
-* Parser for everything except R*, FT and CC
+## 0.1.0.0
+* Any UniProt-KB file can be parsed

@@ -1,18 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE TupleSections     #-}
 module Bio.Uniprot.Parser where
 
-import           Prelude              hiding (null, init)
-import qualified Prelude as P (init, id)
+import           Prelude              hiding (concat, init, null)
+import qualified Prelude              as P (concat, id, init)
 
 import           Bio.Uniprot.Type
-import           Control.Applicative  ((<|>), liftA2)
+import           Control.Applicative  (liftA2, (<|>))
 import           Control.Monad        (unless, when)
 import           Data.Attoparsec.Text
 import           Data.Bifunctor       (second)
 import           Data.Functor         (($>))
-import           Data.Text            (Text, append, init, null, pack, unpack,
-                                       unwords, splitOn)
+import           Data.Text            (Text, append, concat, init, null, pack,
+                                       splitOn, unpack, unwords)
 import           Data.Void
 
 import           Debug.Trace          (trace)
@@ -39,7 +40,7 @@ parseID = do
 parseAC :: Parser AC
 parseAC = do
     parseStartAC
-    initAC <- concat <$> many' (parseOneAC <* endOfLine <* parseStartAC)
+    initAC <- P.concat <$> many' (parseOneAC <* endOfLine <* parseStartAC)
     lastAC <- parseOneAC
     let accessionNumbers = initAC ++ lastAC
     pure AC{..}
@@ -125,11 +126,11 @@ parseGN :: Parser [GN]
 parseGN = do
     string "GN   "
     geneName <- optional parseGNName
-    parseGNOptionBreak
+    optional $ parseBreak "GN"
     synonyms <- option [] $ parseGNList "Synonyms"
-    parseGNOptionBreak
+    optional $ parseBreak "GN"
     orderedLocusNames <- option [] $ parseGNList "OrderedLocusNames"
-    parseGNOptionBreak
+    optional $ parseBreak "GN"
     orfNames <- option [] $ parseGNList "ORFNames"
     let gn = GN{..}
     rest <- option [] $ string "and" *> endOfLine *> parseGN
@@ -137,21 +138,11 @@ parseGN = do
   where
     -- |Parses `Name` item of GN line
     parseGNName :: Parser Text
-    parseGNName = parseGNItem "Name" (P.id <$>)
-
-    -- |Parses line break for multiline GN section
-    parseGNOptionBreak :: Parser ()
-    parseGNOptionBreak = option () $ ((endOfLine *> string "GN   ") <|> " ") $> ()
+    parseGNName = parseDefItem "Name" (P.id <$>)
 
     -- |Parses any list item of GN line (like `Synonyms` or `ORFNames`)
     parseGNList :: Text -> Parser [Text]
-    parseGNList name = parseGNItem name (splitOn ", " <$>)
-
-    -- |Parses one item of GN line
-    parseGNItem :: Text -> (Parser Text -> Parser a) -> Parser a
-    parseGNItem name f = do
-        string name >> char '='
-        f (pack <$> many1 (notChar ';')) <* char ';'
+    parseGNList name = parseDefItem name (splitOn ", " <$>)
 
 -- |Parses OS lines for one record of UniProt-KB text file.
 parseOS :: Parser OS
@@ -182,7 +173,7 @@ parseOG = parseOGNonPlasmid <|> (Plasmid <$> parseOGPlasmid)
       (string "Plastid; Organellar chromatophore." $> Plastid PlastidOrganellarChromatophore) <|>
       (string "Plastid; Cyanelle." $> Plastid PlastidCyanelle) <|>
       (string "Plastid; Non-photosynthetic plastid." $> Plastid PlastidNonPhotosynthetic)
-      
+
     parseOGPlasmid :: Parser [Text]
     parseOGPlasmid = do
         string "OG   "
@@ -197,9 +188,9 @@ parseOG = parseOGNonPlasmid <|> (Plasmid <$> parseOGPlasmid)
         string "Plasmid "
         pack <$> many1 (satisfy $ liftA2 (&&) (notInClass ",.") (not . isEndOfLine))
 
--- |Parser OG line of UniProt-KB text file.
+-- |Parser OC line of UniProt-KB text file.
 parseOC :: Parser OC
-parseOC = parseNodes "OC" OC
+parseOC = parseNodes ';' '.' "OC" OC
 
 -- |Parses OX lines of UniProt-KB text file.
 parseOX :: Parser OX
@@ -221,11 +212,62 @@ parseOH = do
     char '.'
     pure OH{..}
 
-parseRef :: Parser [Reference]
-parseRef = undefined
+parseRef :: Parser Reference
+parseRef = do
+    rn <- parseRN
+    endOfLine
+    rp <- parseRP
+    endOfLine
+    rc <- option [] (parseRCX STRAIN "RC" <* endOfLine)
+    rx <- option [] (parseRCX MEDLINE "RX" <* endOfLine)
+    rg <- optional  (parseRG <* endOfLine)
+    ra <- option [] (parseNodes ',' ';' "RA" P.id <* endOfLine)
+    rt <- optional  (parseRT <* endOfLine)
+    rl <- parseRL
+    pure Reference{..}
+  where    
+    parseRN :: Parser Int
+    parseRN = (string "RN   [" *> decimal) <* char ']'
 
-parseCC :: Parser [CC]
-parseCC = undefined
+    parseRP :: Parser Text
+    parseRP = do
+        string "RP   "
+        pack . P.init <$> parseMultiLineComment "RP" 3
+
+    parseRCX :: (Enum a, Show a) => a -> Text -> Parser [(a, Text)]
+    parseRCX start name = do
+       string name >> string "   "
+       (:) <$> parseTokPair start
+           <*> many' (parseBreak name *> parseTokPair start)
+     where
+       parseTokPair :: (Enum a, Show a) => a -> Parser (a, Text)
+       parseTokPair x = foldl1 (<|>) $
+                          (\x -> (x,) <$> parseDefItem (pack . show $ x) (P.id <$>)) <$> [x..]
+
+    parseRG :: Parser Text
+    parseRG = pack <$> (string "RG   " *> many1 (satisfy $ not . isEndOfLine))
+
+    parseRT :: Parser Text
+    parseRT = do
+        string "RT   \""
+        let p = many1 $ satisfy $ liftA2 (&&) (not . isEndOfLine) (notInClass "\"")
+        referenceTitle <- (:) <$> p <*> many' (endOfLine *> string "RT  " *> p)
+        string "\";"
+        pure $ pack . hyphenConcat $ referenceTitle
+
+    parseRL :: Parser Text
+    parseRL = do
+        string "RL   "
+        pack . P.init <$> parseMultiLineComment "RL" 3
+
+parseCC :: Parser CC
+parseCC = do
+    string "CC   -!- "
+    topic <- pack <$> many1 (notChar ':')
+    char ':'
+    (char ' ' $> ()) <|> (endOfLine >> string "CC" >> count 7 space $> ())
+    comment <- pack <$> parseMultiLineComment "CC" 7
+    pure CC{..}
 
 parseDR :: Parser DR
 parseDR = do
@@ -243,24 +285,30 @@ parseDR = do
 
 -- |Parses PE line of UniProt-KB text file.
 parsePE :: Parser PE
-parsePE = (string "PE   1: Evidence at protein level" $> EvidenceAtProteinLevel) <|>
-          (string "PE   2: Evidence at transcript level" $> EvidenceAtTranscriptLevel) <|>
-          (string "PE   3: Inferred from homology" $> InferredFromHomology) <|>
-          (string "PE   4: Predicted" $> Predicted) <|>
-          (string "PE   5: Uncertain" $> Uncertain)
+parsePE = (string "PE   1: Evidence at protein level;" $> EvidenceAtProteinLevel) <|>
+          (string "PE   2: Evidence at transcript level;" $> EvidenceAtTranscriptLevel) <|>
+          (string "PE   3: Inferred from homology;" $> InferredFromHomology) <|>
+          (string "PE   4: Predicted;" $> Predicted) <|>
+          (string "PE   5: Uncertain;" $> Uncertain)
 
 -- |Parses KW lines of UniProt-KB text file.
 parseKW :: Parser KW
-parseKW = parseNodes "KW" KW
+parseKW = parseNodes ';' '.' "KW" KW
 
-parseFT :: Parser [FT]
+-- |Parses FT lines of UniProt-KB text file. One FT section is parsed.
+parseFT :: Parser FT
 parseFT = do
     string "FT   "
     keyName <- pack <$> many1 (satisfy $ inClass "A-Z_")
-    many' space
-    pure undefined
-    -- pure FT{..}
+    many1 space
+    fromEP <- parseFTEndpoint
+    many1 space
+    toEP <- parseFTEndpoint
+    many1 space
+    description <- splitByMagic <$> parseMultiLineComment "FT" 32
+    pure FT{..}
   where
+    -- |Parse FT endpoint
     parseFTEndpoint :: Parser Endpoint
     parseFTEndpoint = (UncertainEP <$> (char '?' *> decimal)) <|>
                       (NTerminalEP <$> (char '<' *> decimal)) <|>
@@ -268,6 +316,18 @@ parseFT = do
                       (ExactEP     <$> decimal) <|>
                       (char '?' $> UnknownEP)
 
+    -- |Split string to tokens by periods outside brackets.
+    splitByMagic :: String -> [Text]
+    splitByMagic txt = pack <$> splitStr 0 [] txt
+      where
+        splitStr :: Int -> String -> String -> [String]
+        splitStr 0 acc ['.']        = [reverse acc]
+        splitStr 0 acc ('.':' ':xs) = reverse acc : splitStr 0 [] xs
+        splitStr 0 acc ('.':xs)     = reverse acc : splitStr 0 [] xs
+        splitStr n acc ('(':xs)     = splitStr (n+1) ('(':acc) xs
+        splitStr n acc (')':xs)     = splitStr (n-1) (')':acc) xs
+        splitStr n acc (x:xs)       = splitStr n (x:acc) xs
+    
 -- |Parses SQ lines of UniProt-KB text file.
 parseSQ :: Parser SQ
 parseSQ = do
@@ -282,7 +342,7 @@ parseSQ = do
     crc64 <- pack <$> many1 (satisfy $ inClass "A-F0-9")
     space >> string "CRC64;"
     endOfLine
-    sequence <- pack . concat <$>
+    sequence <- pack . P.concat <$>
                   many1 (skipSpace *> many1 (satisfy $ inClass "ACDEFGHIKLMNPQRSTVWY"))
     pure SQ{..}
 
@@ -290,18 +350,28 @@ parseSQ = do
 parseEnd :: Parser ()
 parseEnd = string "//" >> pure ()
 
--- = Helper parsers
+-- |Parses whole UniProt-KB record.
+parseRecord :: Parser Record
+parseRecord = Record <$>          (parseID  <* endOfLine)
+                     <*>          (parseAC  <* endOfLine)
+                     <*>          (parseDT  <* endOfLine)
+                     <*>          (parseDE  <* endOfLine)
+                     <*>          (parseGN  <* endOfLine)
+                     <*>          (parseOS  <* endOfLine)
+                     <*> optional (parseOG  <* endOfLine)
+                     <*>          (parseOC  <* endOfLine)
+                     <*> optional (parseOX  <* endOfLine)
+                     <*> many'    (parseOH  <* endOfLine)
+                     <*> many'    (parseRef <* endOfLine)
+                     <*> many'    (parseCC  <* endOfLine)
+                     <*> many'    (parseDR  <* endOfLine)
+                     <*>          (parsePE  <* endOfLine)
+                     <*>          (parseKW  <* endOfLine)
+                     <*> many'    (parseFT  <* endOfLine)
+                     <*>          (parseSQ  <* endOfLine)
+                     <*           parseEnd
 
-parseAndSkip :: Text -> Parser ()
-parseAndSkip txt = do
-    many' (parseOneAndSkip <* endOfLine) >> parseOneAndSkip
-    pure ()
-  where
-    parseOneAndSkip :: Parser ()
-    parseOneAndSkip = do
-        string txt
-        many1 anyChar
-        pure ()
+-- = Helper parsers
 
 -- |Transforms any parser to a parser of maybe value.
 -- >>> parseOnly (optional digit) "1"
@@ -313,16 +383,52 @@ optional :: Parser a -> Parser (Maybe a)
 optional par = option Nothing (Just <$> par)
 
 -- |Parses lines, that contain nodes splitted by ';' and ended by '.'.
-parseNodes :: Text -> ([Text] -> a) -> Parser a
-parseNodes start f = do
+parseNodes :: Char          -- ^Delimeter char, that splits the nodes.
+           -> Char          -- ^Terminal char, that ends the node list.
+           -> Text          -- ^Start 2-letter mark.
+           -> ([Text] -> a) -- ^Text modifier
+           -> Parser a
+parseNodes del end start f = do
     string start >> count 3 space
     name <- parseNode
     rest <- many' $ do
-        string ";"
+        char del
         string " " <|> (endOfLine >> string start >> count 3 space >> pure "")
         parseNode
-    char '.'
+    char end
     pure $ f (name:rest)
   where
     parseNode :: Parser Text
-    parseNode = pack <$> many1 (satisfy $ liftA2 (&&) (notInClass ";.") (not . isEndOfLine))
+    parseNode = pack <$> many1 (satisfy $ liftA2 (&&) (notInClass [del,end]) (not . isEndOfLine))
+
+-- |Parses line till the end.
+parseTillEnd :: Parser String
+parseTillEnd = many1 $ satisfy (not . isEndOfLine)
+
+-- |Parses multiline comment as one string.
+parseMultiLineComment :: Text -> Int -> Parser String
+parseMultiLineComment start skip = do
+    comm <- (:) <$> parseTillEnd
+                <*> many' (do endOfLine
+                              string start
+                              count (skip - 1) space -- leave one space to separate words
+                              parseTillEnd)
+    pure $ hyphenConcat comm
+
+-- |Parses line break for multiline section.
+parseBreak :: Text -> Parser ()
+parseBreak txt = ((endOfLine >> string txt >> string "   ") <|> string " ") $> ()
+
+-- |Parses one item like "Something=Something else;"
+parseDefItem :: Text -> (Parser Text -> Parser a) -> Parser a
+parseDefItem name f = do
+    string name >> char '='
+    f (pack <$> many1 (notChar ';')) <* char ';'
+
+-- |Delete needless space after hyphen on concat.
+hyphenConcat :: [String] -> String
+hyphenConcat []       = []
+hyphenConcat [x]      = x
+hyphenConcat (x:y:ys) = if last x == '-'
+                          then x ++ tail y ++ hyphenConcat ys
+                          else x ++ y ++ hyphenConcat ys

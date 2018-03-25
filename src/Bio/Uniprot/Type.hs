@@ -149,28 +149,12 @@ data OH = OH
   , hostName :: Text -- ^
   } deriving (Show, Eq, Ord)
 
--- |Reference Number - a sequential number to each reference
--- citation in an entry.
-newtype RN = RN
-  { referenceNumber :: Int
-  } deriving (Show, Eq, Ord)
-
--- |Reference Position - the extent of the work relevant to
--- the entry carried out by the authors.
-newtype RP = RP
-  { referencePosition :: Text
-  } deriving (Show, Eq, Ord)
-
+-- |Reference comment token.
 data Token = STRAIN
            | PLASMID
            | TRANSPOSON
            | TISSUE
   deriving (Show, Eq, Ord, Bounded, Enum)
-
--- |Reference Comment - comments relevant to the reference cited.
-newtype RC = RC
-  { referenceComments :: [(Token, Text)]
-  } deriving (Show, Eq, Ord)
 
 -- |Bibliographic database names.
 data BibliographicDB = MEDLINE
@@ -179,34 +163,16 @@ data BibliographicDB = MEDLINE
                      | AGRICOLA
   deriving (Show, Eq, Ord, Bounded, Enum)
 
--- |Reference cross-reference - the identifier assigned to a specific
--- reference in a bibliographic database.
-newtype RX = RX
-  { referenceCrossrefs :: [(BibliographicDB, Text)]
-  } deriving (Show, Eq, Ord)
-
--- |Reference Group - the consortium name associated with a given
--- citation.
-newtype RG = RG
-  { referenceGroup :: Text
-  } deriving (Show, Eq, Ord)
-
--- |Reference Author - authors of the paper (or other work) cited.
-newtype RA = RA
-  { referenceAuthors :: [Text]
-  } deriving (Show, Eq, Ord)
-
--- |Reference Title - the title of the paper (or other work) cited as
--- exactly as possible given the limitations of the computer character
--- set.
-newtype RT = RT
-  { referenceTitle :: Text
-  } deriving (Show, Eq, Ord)
-
--- |Reference Location - he conventional citation information for the
--- reference.
-newtype RL = RL
-  { referenceLocation :: Text
+-- |Reference lines.
+data Reference = Reference
+  { rn :: Int                       -- ^Reference Number - a sequential number to each reference citation in an entry.
+  , rp :: Text                      -- ^Reference Position - the extent of the work relevant to the entry carried out by the authors.
+  , rc :: [(Token, Text)]           -- ^Reference Comment - comments relevant to the reference cited.
+  , rx :: [(BibliographicDB, Text)] -- ^Reference cross-reference - the identifier assigned to a specific reference in a bibliographic database.
+  , rg :: Maybe Text                -- ^Reference Group - the consortium name associated with a given citation.
+  , ra :: [Text]                    -- ^Reference Author - authors of the paper (or other work) cited.
+  , rt :: Maybe Text                -- ^Reference Title - the title of the paper (or other work) cited as exactly as possible given the limitations of the computer character set.
+  , rl :: Text                      -- ^Reference Location - he conventional citation information for the reference.
   } deriving (Show, Eq, Ord)
 
 -- |The comment blocks are arranged according to what we designate as
@@ -215,8 +181,9 @@ type Topic = Text
 
 -- |Free text comments on the entry, and are used to convey any useful
 -- information.
-newtype CC = CC
-  { comments :: [(Topic, Text)]
+data CC = CC
+  { topic   :: Topic
+  , comment :: Text
   } deriving (Show, Eq, Ord)
 
 -- |Database cross-Reference - pointers to information in external
@@ -269,17 +236,6 @@ data SQ = SQ
   , sequence  :: Text -- ^Sequence of the protein
   } deriving (Show, Eq, Ord)
 
-data Reference = Reference
-  { rn :: RN
-  , rp :: RP
-  , rc :: RC
-  , rx :: RX
-  , rg :: Maybe RG
-  , ra :: RA
-  , rt :: RT
-  , rl :: RL
-  } deriving (Show, Eq, Ord)
-
 -- |Full UniProt record in UniProt-KB format.
 data Record = Record
   { id   :: ID
@@ -293,7 +249,7 @@ data Record = Record
   , ox   :: Maybe OX
   , oh   :: [OH]
   , refs :: [Reference]
-  , cc   :: CC
+  , cc   :: [CC]
   , dr   :: [DR]
   , pe   :: PE
   , kw   :: KW
