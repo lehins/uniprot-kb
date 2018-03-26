@@ -941,6 +941,6 @@ main = hspec $ do
       it "parses PD1 example" $ do
         let record = Record idAns acAns dtAns deAns
                             gnAns osAns Nothing ocAns
-                            (Just oxAns) [] refAns ccAns
-                            drAns peAns kwAns ftAns sqAns
+                            oxAns [] refAns ccAns
+                            drAns peAns (Just kwAns) ftAns sqAns
         parseOnly parseRecord pd1Str `shouldBe` Right record

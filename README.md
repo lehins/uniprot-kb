@@ -15,12 +15,24 @@ $ stack haddock
 
 ## Usage example
 
-To use the parser and types import:
-```
-λ> import Bio.Uniprot
+You can use this simple code to parse any UniProt file:
+
+``` haskell
+import           Bio.Uniprot
+import           Data.Attoparsec.Text (parseOnly)
+import           Data.Text            (Text)
+import qualified Data.Text.IO         as TIO
+import           Text.Pretty.Simple   (pPrint)
+
+main :: IO ()
+main = do
+    uniprot <- TIO.getContents
+    case parseOnly parseRecord uniprot of
+      Left err  -> putStrLn "Error on parse"
+      Right obj -> pPrint obj
 ```
 
-Than you can parse any `Text` of UniProt by using `parseRecord` function. The result will be presented by
+So you can parse any stdin `Text` of UniProt by using `parseRecord` function. The result will be presented by
 a `Record` datatype:
 ``` haskell
 data Record = Record
@@ -42,4 +54,9 @@ data Record = Record
   , ft   :: [FT]
   , sq   :: SQ
   } deriving (Show, Eq, Ord)
+```
+
+You can run this to test the implementation:
+``` bash
+stack runhaskell uniprot.hs < example/LOLA2_DROME.dat
 ```

@@ -3,7 +3,7 @@
 {-# LANGUAGE TupleSections     #-}
 module Bio.Uniprot.Parser where
 
-import           Prelude              hiding (concat, init, null)
+import           Prelude              hiding (init, null)
 import qualified Prelude              as P (concat, id, init)
 
 import           Bio.Uniprot.Type
@@ -15,8 +15,6 @@ import           Data.Functor         (($>))
 import           Data.Text            (Text, append, concat, init, null, pack,
                                        splitOn, unpack, unwords)
 import           Data.Void
-
-import           Debug.Trace          (trace)
 
 -- |Describes possible name type of DE section.
 data NameType = RecName | AltName | SubName | Flags | None
@@ -212,6 +210,7 @@ parseOH = do
     char '.'
     pure OH{..}
 
+-- |Parses RN, RP, RC, RX, RG, RA, RT and RL lines of UniProt-KB text file.
 parseRef :: Parser Reference
 parseRef = do
     rn <- parseRN
@@ -225,7 +224,7 @@ parseRef = do
     rt <- optional  (parseRT <* endOfLine)
     rl <- parseRL
     pure Reference{..}
-  where    
+  where
     parseRN :: Parser Int
     parseRN = (string "RN   [" *> decimal) <* char ']'
 
@@ -260,6 +259,7 @@ parseRef = do
         string "RL   "
         pack . P.init <$> parseMultiLineComment "RL" 3
 
+-- |Parses CC lines of UniProt-KB text file.
 parseCC :: Parser CC
 parseCC = do
     string "CC   -!- "
@@ -269,6 +269,7 @@ parseCC = do
     comment <- pack <$> parseMultiLineComment "CC" 7
     pure CC{..}
 
+-- |Parses DR lines of UniProt-KB text file.
 parseDR :: Parser DR
 parseDR = do
     string "DR   "
@@ -327,7 +328,7 @@ parseFT = do
         splitStr n acc ('(':xs)     = splitStr (n+1) ('(':acc) xs
         splitStr n acc (')':xs)     = splitStr (n-1) (')':acc) xs
         splitStr n acc (x:xs)       = splitStr n (x:acc) xs
-    
+
 -- |Parses SQ lines of UniProt-KB text file.
 parseSQ :: Parser SQ
 parseSQ = do
@@ -352,28 +353,29 @@ parseEnd = string "//" >> pure ()
 
 -- |Parses whole UniProt-KB record.
 parseRecord :: Parser Record
-parseRecord = Record <$>          (parseID  <* endOfLine)
-                     <*>          (parseAC  <* endOfLine)
-                     <*>          (parseDT  <* endOfLine)
-                     <*>          (parseDE  <* endOfLine)
-                     <*>          (parseGN  <* endOfLine)
-                     <*>          (parseOS  <* endOfLine)
-                     <*> optional (parseOG  <* endOfLine)
-                     <*>          (parseOC  <* endOfLine)
-                     <*> optional (parseOX  <* endOfLine)
-                     <*> many'    (parseOH  <* endOfLine)
-                     <*> many'    (parseRef <* endOfLine)
-                     <*> many'    (parseCC  <* endOfLine)
-                     <*> many'    (parseDR  <* endOfLine)
-                     <*>          (parsePE  <* endOfLine)
-                     <*>          (parseKW  <* endOfLine)
-                     <*> many'    (parseFT  <* endOfLine)
-                     <*>          (parseSQ  <* endOfLine)
-                     <*           parseEnd
+parseRecord = Record <$>           (parseID  <* endOfLine)
+                     <*>           (parseAC  <* endOfLine)
+                     <*>           (parseDT  <* endOfLine)
+                     <*>           (parseDE  <* endOfLine)
+                     <*> option [] (parseGN  <* endOfLine)
+                     <*>           (parseOS  <* endOfLine)
+                     <*> optional  (parseOG  <* endOfLine)
+                     <*>           (parseOC  <* endOfLine)
+                     <*>           (parseOX  <* endOfLine)
+                     <*> many'     (parseOH  <* endOfLine)
+                     <*> many'     (parseRef <* endOfLine)
+                     <*> many'     (parseCC  <* endOfLine)
+                     <*> many'     (parseDR  <* endOfLine)
+                     <*>           (parsePE  <* endOfLine)
+                     <*> optional  (parseKW  <* endOfLine)
+                     <*> many'     (parseFT  <* endOfLine)
+                     <*>           (parseSQ  <* endOfLine)
+                     <*            parseEnd
 
 -- = Helper parsers
 
 -- |Transforms any parser to a parser of maybe value.
+--
 -- >>> parseOnly (optional digit) "1"
 -- Right (Just 1)
 --
@@ -411,7 +413,7 @@ parseMultiLineComment start skip = do
     comm <- (:) <$> parseTillEnd
                 <*> many' (do endOfLine
                               string start
-                              count (skip - 1) space -- leave one space to separate words
+                              count (skip - 1) (char ' ') -- leave one space to separate words
                               parseTillEnd)
     pure $ hyphenConcat comm
 
@@ -429,6 +431,12 @@ parseDefItem name f = do
 hyphenConcat :: [String] -> String
 hyphenConcat []       = []
 hyphenConcat [x]      = x
-hyphenConcat (x:y:ys) = if last x == '-'
-                          then x ++ tail y ++ hyphenConcat ys
-                          else x ++ y ++ hyphenConcat ys
+hyphenConcat (x:y:ys) = x ++ hyphenConcat (sy:ys)
+  where
+    sy :: String
+    sy | last x == '-'                  = tail y
+       | isAA (last x) && isAA (y !! 1) = tail y
+       | otherwise                      = y
+    
+    isAA :: Char -> Bool
+    isAA = inClass "ACDEFGHIKLMNPQRSTVWY"

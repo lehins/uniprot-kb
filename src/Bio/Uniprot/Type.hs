@@ -246,13 +246,13 @@ data Record = Record
   , os   :: OS
   , og   :: Maybe OG
   , oc   :: OC
-  , ox   :: Maybe OX
+  , ox   :: OX
   , oh   :: [OH]
   , refs :: [Reference]
   , cc   :: [CC]
   , dr   :: [DR]
   , pe   :: PE
-  , kw   :: KW
+  , kw   :: Maybe KW
   , ft   :: [FT]
   , sq   :: SQ
   } deriving (Show, Eq, Ord)
