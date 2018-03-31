@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## 0.1.1.0
+* Back compability lost for SQ section
+* No more DuplicateRecordFields, so it can be built by 7.x
+* Includes and Contains sections of DE tested
+
 ## 0.1.0.1
 * Small fixes in description fields read
 * Documentation fixes

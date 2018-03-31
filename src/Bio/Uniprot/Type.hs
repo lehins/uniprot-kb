@@ -1,4 +1,3 @@
-{-# LANGUAGE DuplicateRecordFields #-}
 module Bio.Uniprot.Type where
 
 import           Data.Text          (Text)
@@ -230,7 +229,7 @@ data FT = FT
 
 -- |SeQuence header - sequence data and a quick summary of its content.
 data SQ = SQ
-  { seqLength :: Int  -- ^Length of the sequence in amino acids.
+  { length    :: Int  -- ^Length of the sequence in amino acids.
   , molWeight :: Int  -- ^Molecular weight rounded to the nearest mass unit (Dalton).
   , crc64     :: Text -- ^Sequence 64-bit CRC (Cyclic Redundancy Check) value.
   , sequence  :: Text -- ^Sequence of the protein

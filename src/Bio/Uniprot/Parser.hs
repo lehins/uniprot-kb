@@ -75,39 +75,40 @@ parseDT = do
 -- |Parses DE lines of UniProt-KB text file.
 parseDE :: Parser DE
 parseDE = do
-    recName  <- optional $ parseNameDE RecName
-    altNames <- many' (endOfLine *> parseAltDE)
-    subNames <- many' (endOfLine *> parseNameDE SubName)
-    includes <- pure []
-    contains <- pure []
+    recName  <- optional $ parseNameDE 0 RecName
+    altNames <- many' (endOfLine *> parseAltDE 0)
+    subNames <- many' (endOfLine *> parseNameDE 0 SubName)
+    includes <- many' (endOfLine *> parseInternal "Includes")
+    contains <- many' (endOfLine *> parseInternal "Contains")
     flags    <- optional (endOfLine *> parseFlagsDE)
     pure DE{..}
   where
     -- |Parses name section like RecName, AltName or SubName.
-    parseNameDE :: NameType -> Parser Name
-    parseNameDE nameType = do
-        fullName <- parseDELine nameType "Full"
-        shortName <- many' $ endOfLine *> parseDELine None "Short"
-        ecNumber <- many' $ endOfLine *> parseDELine None "EC"
+    parseNameDE :: Int -> NameType -> Parser Name
+    parseNameDE indent nameType = do
+        fullName <- parseDELine indent nameType "Full"
+        shortName <- many' $ endOfLine *> parseDELine indent None "Short"
+        ecNumber <- many' $ endOfLine *> parseDELine indent None "EC"
         pure Name{..}
 
     -- |Parses flag line of DE section
     parseFlagsDE :: Parser Flag
-    parseFlagsDE = read . unpack <$> parseDELine Flags ""
+    parseFlagsDE = read . unpack <$> parseDELine 0 Flags ""
 
     -- |Parses AltName lines of DE section
-    parseAltDE :: Parser AltName
-    parseAltDE =
-      (Simple <$> parseNameDE AltName) <|>
-      (Allergen <$> parseDELine AltName "Allergen") <|>
-      (Biotech <$> parseDELine AltName "Biotech") <|>
-      (CDAntigen <$> parseDELine AltName "CD_antigen") <|>
-      (INN <$> parseDELine AltName "INN")
+    parseAltDE :: Int -> Parser AltName
+    parseAltDE indent =
+      (Simple <$> parseNameDE indent AltName) <|>
+      (Allergen <$> parseDELine indent AltName "Allergen") <|>
+      (Biotech <$> parseDELine indent AltName "Biotech") <|>
+      (CDAntigen <$> parseDELine indent AltName "CD_antigen") <|>
+      (INN <$> parseDELine indent AltName "INN")
 
     -- |Parses any DE line
-    parseDELine :: NameType -> Text -> Parser Text
-    parseDELine nameType tpe = do
+    parseDELine :: Int -> NameType -> Text -> Parser Text
+    parseDELine indent nameType tpe = do
         string "DE   "
+        count indent (char ' ')
         case nameType of
           None -> string "         "
           a    -> string $ append (pack $ show a) ": "
@@ -118,6 +119,15 @@ parseDE = do
         res <- pack <$> many1 (notChar ';')
         char ';'
         pure res
+
+    -- |Parses internal DE entities
+    parseInternal :: Text -> Parser DE
+    parseInternal name = do
+        string "DE   " >> string name >> char ':'
+        endOfLine
+        recName  <- optional $ parseNameDE 2 RecName
+        altNames <- many' (endOfLine *> parseAltDE 2)
+        pure $ DE recName altNames [] [] [] Nothing
 
 -- |Parses DE lines of UniProt-KB text file.
 parseGN :: Parser [GN]
@@ -334,7 +344,7 @@ parseSQ :: Parser SQ
 parseSQ = do
     string "SQ   SEQUENCE"
     many1 space
-    seqLength <- decimal
+    length <- decimal
     space >> string "AA;"
     many1 space
     molWeight <- decimal

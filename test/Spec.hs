@@ -33,6 +33,25 @@ DE            Short=hPD-1;
 DE   AltName: CD_antigen=CD279;
 DE   Flags: Precursor;|]
 
+de2Str :: Text
+de2Str = [text|
+DE   RecName: Full=Arginine biosynthesis bifunctional protein argJ;
+DE   Includes:
+DE     RecName: Full=Glutamate N-acetyltransferase;
+DE              EC=2.3.1.35;
+DE     AltName: Full=Ornithine acetyltransferase;
+DE              Short=OATase;
+DE     AltName: Full=Ornithine transacetylase;
+DE   Includes:
+DE     RecName: Full=Amino-acid acetyltransferase;
+DE              EC=2.3.1.1;
+DE     AltName: Full=N-acetylglutamate synthase;
+DE              Short=AGS;
+DE   Contains:
+DE     RecName: Full=Arginine biosynthesis bifunctional protein argJ alpha chain;
+DE   Contains:
+DE     RecName: Full=Arginine biosynthesis bifunctional protein argJ beta chain;|]
+  
 gnStr :: Text
 gnStr = "GN   Name=PDCD1; Synonyms=PD1;"
 
@@ -690,6 +709,22 @@ deAns :: DE
 deAns = DE (Just (Name "Programmed cell death protein 1" ["Protein PD-1", "hPD-1"] []))
            [CDAntigen "CD279"] [] [] [] (Just Precursor)
 
+de2Ans :: DE
+de2Ans = DE (Just (Name "Arginine biosynthesis bifunctional protein argJ" [] [])) [] []
+            [DE (Just (Name "Glutamate N-acetyltransferase" [] ["2.3.1.35"]))
+                [Simple (Name "Ornithine acetyltransferase" ["OATase"] []),
+                 Simple (Name "Ornithine transacetylase" [] [])]
+                [] [] [] Nothing,
+             DE (Just (Name "Amino-acid acetyltransferase" [] ["2.3.1.1"]))
+                [Simple (Name "N-acetylglutamate synthase" ["AGS"] [])]
+                [] [] [] Nothing
+            ]
+            [DE (Just (Name "Arginine biosynthesis bifunctional protein argJ alpha chain" [] []))
+                [] [] [] [] Nothing,
+             DE (Just (Name "Arginine biosynthesis bifunctional protein argJ beta chain" [] []))
+                [] [] [] [] Nothing]
+            Nothing
+
 gnAns :: [GN]
 gnAns = [GN (Just "PDCD1") ["PD1"] [] []]
 
@@ -903,8 +938,9 @@ main = hspec $ do
         parseOnly parseAC acStr `shouldBe` Right acAns
       it "parses DT lines" $
         parseOnly parseDT dtStr `shouldBe` Right dtAns
-      it "parses DE lines" $
+      it "parses DE lines" $ do
         parseOnly parseDE deStr `shouldBe` Right deAns
+        parseOnly parseDE de2Str `shouldBe` Right de2Ans
       it "parses GN lines" $
         parseOnly parseGN gnStr `shouldBe` Right gnAns
       it "parses OS lines" $
