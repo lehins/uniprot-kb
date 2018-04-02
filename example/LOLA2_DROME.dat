@@ -1,0 +1,287 @@
+ID   LOLA2_DROME             Reviewed;         549 AA.
+AC   P42284; Q867M9; Q867R1; Q868A5;
+DT   01-NOV-1995, integrated into UniProtKB/Swiss-Prot.
+DT   30-AUG-2005, sequence version 2.
+DT   28-FEB-2018, entry version 129.
+DE   RecName: Full=Longitudinals lacking protein, isoforms H/M/V;
+GN   Name=lola {ECO:0000312|FlyBase:FBgn0283521};
+GN   ORFNames=CG12052 {ECO:0000312|FlyBase:FBgn0283521};
+OS   Drosophila melanogaster (Fruit fly).
+OC   Eukaryota; Metazoa; Ecdysozoa; Arthropoda; Hexapoda; Insecta;
+OC   Pterygota; Neoptera; Holometabola; Diptera; Brachycera; Muscomorpha;
+OC   Ephydroidea; Drosophilidae; Drosophila; Sophophora.
+OX   NCBI_TaxID=7227;
+RN   [1]
+RP   NUCLEOTIDE SEQUENCE [MRNA] (ISOFORM M), FUNCTION, SUBCELLULAR
+RP   LOCATION, TISSUE SPECIFICITY, AND DEVELOPMENTAL STAGE.
+RX   PubMed=8050351;
+RA   Giniger E., Tietje K., Jan L.Y., Jan Y.N.;
+RT   "Lola encodes a putative transcription factor required for axon growth
+RT   and guidance in Drosophila.";
+RL   Development 120:1385-1398(1994).
+RN   [2]
+RP   NUCLEOTIDE SEQUENCE [MRNA] (ISOFORMS H; M AND V).
+RC   STRAIN=Canton-S; TISSUE=Embryo, Larva, and Pupae;
+RX   PubMed=12853139; DOI=10.1016/S0378-1119(03)00554-7;
+RA   Ohsako T., Horiuchi T., Matsuo T., Komaya S., Aigaki T.;
+RT   "Drosophila lola encodes a family of BTB-transcription regulators with
+RT   highly variable C-terminal domains containing zinc finger motifs.";
+RL   Gene 311:59-69(2003).
+RN   [3]
+RP   NUCLEOTIDE SEQUENCE [LARGE SCALE GENOMIC DNA].
+RC   STRAIN=Berkeley;
+RX   PubMed=10731132; DOI=10.1126/science.287.5461.2185;
+RA   Adams M.D., Celniker S.E., Holt R.A., Evans C.A., Gocayne J.D.,
+RA   Amanatides P.G., Scherer S.E., Li P.W., Hoskins R.A., Galle R.F.,
+RA   George R.A., Lewis S.E., Richards S., Ashburner M., Henderson S.N.,
+RA   Sutton G.G., Wortman J.R., Yandell M.D., Zhang Q., Chen L.X.,
+RA   Brandon R.C., Rogers Y.-H.C., Blazej R.G., Champe M., Pfeiffer B.D.,
+RA   Wan K.H., Doyle C., Baxter E.G., Helt G., Nelson C.R., Miklos G.L.G.,
+RA   Abril J.F., Agbayani A., An H.-J., Andrews-Pfannkoch C., Baldwin D.,
+RA   Ballew R.M., Basu A., Baxendale J., Bayraktaroglu L., Beasley E.M.,
+RA   Beeson K.Y., Benos P.V., Berman B.P., Bhandari D., Bolshakov S.,
+RA   Borkova D., Botchan M.R., Bouck J., Brokstein P., Brottier P.,
+RA   Burtis K.C., Busam D.A., Butler H., Cadieu E., Center A., Chandra I.,
+RA   Cherry J.M., Cawley S., Dahlke C., Davenport L.B., Davies P.,
+RA   de Pablos B., Delcher A., Deng Z., Mays A.D., Dew I., Dietz S.M.,
+RA   Dodson K., Doup L.E., Downes M., Dugan-Rocha S., Dunkov B.C., Dunn P.,
+RA   Durbin K.J., Evangelista C.C., Ferraz C., Ferriera S., Fleischmann W.,
+RA   Fosler C., Gabrielian A.E., Garg N.S., Gelbart W.M., Glasser K.,
+RA   Glodek A., Gong F., Gorrell J.H., Gu Z., Guan P., Harris M.,
+RA   Harris N.L., Harvey D.A., Heiman T.J., Hernandez J.R., Houck J.,
+RA   Hostin D., Houston K.A., Howland T.J., Wei M.-H., Ibegwam C.,
+RA   Jalali M., Kalush F., Karpen G.H., Ke Z., Kennison J.A., Ketchum K.A.,
+RA   Kimmel B.E., Kodira C.D., Kraft C.L., Kravitz S., Kulp D., Lai Z.,
+RA   Lasko P., Lei Y., Levitsky A.A., Li J.H., Li Z., Liang Y., Lin X.,
+RA   Liu X., Mattei B., McIntosh T.C., McLeod M.P., McPherson D.,
+RA   Merkulov G., Milshina N.V., Mobarry C., Morris J., Moshrefi A.,
+RA   Mount S.M., Moy M., Murphy B., Murphy L., Muzny D.M., Nelson D.L.,
+RA   Nelson D.R., Nelson K.A., Nixon K., Nusskern D.R., Pacleb J.M.,
+RA   Palazzolo M., Pittman G.S., Pan S., Pollard J., Puri V., Reese M.G.,
+RA   Reinert K., Remington K., Saunders R.D.C., Scheeler F., Shen H.,
+RA   Shue B.C., Siden-Kiamos I., Simpson M., Skupski M.P., Smith T.J.,
+RA   Spier E., Spradling A.C., Stapleton M., Strong R., Sun E.,
+RA   Svirskas R., Tector C., Turner R., Venter E., Wang A.H., Wang X.,
+RA   Wang Z.-Y., Wassarman D.A., Weinstock G.M., Weissenbach J.,
+RA   Williams S.M., Woodage T., Worley K.C., Wu D., Yang S., Yao Q.A.,
+RA   Ye J., Yeh R.-F., Zaveri J.S., Zhan M., Zhang G., Zhao Q., Zheng L.,
+RA   Zheng X.H., Zhong F.N., Zhong W., Zhou X., Zhu S.C., Zhu X.,
+RA   Smith H.O., Gibbs R.A., Myers E.W., Rubin G.M., Venter J.C.;
+RT   "The genome sequence of Drosophila melanogaster.";
+RL   Science 287:2185-2195(2000).
+RN   [4]
+RP   GENOME REANNOTATION, AND ALTERNATIVE SPLICING.
+RC   STRAIN=Berkeley;
+RX   PubMed=12537572; DOI=10.1186/gb-2002-3-12-research0083;
+RA   Misra S., Crosby M.A., Mungall C.J., Matthews B.B., Campbell K.S.,
+RA   Hradecky P., Huang Y., Kaminker J.S., Millburn G.H., Prochnik S.E.,
+RA   Smith C.D., Tupy J.L., Whitfield E.J., Bayraktaroglu L., Berman B.P.,
+RA   Bettencourt B.R., Celniker S.E., de Grey A.D.N.J., Drysdale R.A.,
+RA   Harris N.L., Richter J., Russo S., Schroeder A.J., Shu S.Q.,
+RA   Stapleton M., Yamada C., Ashburner M., Gelbart W.M., Rubin G.M.,
+RA   Lewis S.E.;
+RT   "Annotation of the Drosophila melanogaster euchromatic genome: a
+RT   systematic review.";
+RL   Genome Biol. 3:RESEARCH0083.1-RESEARCH0083.22(2002).
+RN   [5]
+RP   FUNCTION, AND MUTAGENESIS OF ALA-107.
+RX   PubMed=11880341;
+RA   Crowner D., Madden K., Goeke S., Giniger E.;
+RT   "Lola regulates midline crossing of CNS axons in Drosophila.";
+RL   Development 129:1317-1325(2002).
+RN   [6]
+RP   TRANS-SPLICING.
+RX   PubMed=14522953; DOI=10.1101/gad.1137303;
+RA   Horiuchi T., Giniger E., Aigaki T.;
+RT   "Alternative trans-splicing of constant and variable exons of a
+RT   Drosophila axon guidance gene, lola.";
+RL   Genes Dev. 17:2496-2501(2003).
+RN   [7]
+RP   DEVELOPMENTAL STAGE.
+RX   PubMed=12538650; DOI=10.1074/jbc.M213269200;
+RA   Zhang W., Wang Y., Long J., Girton J., Johansen J., Johansen K.M.;
+RT   "A developmentally regulated splice variant from the complex lola
+RT   locus encoding multiple different zinc finger domain proteins
+RT   interacts with the chromosomal kinase JIL-1.";
+RL   J. Biol. Chem. 278:11696-11704(2003).
+RN   [8]
+RP   DEVELOPMENTAL STAGE.
+RX   PubMed=12897787; DOI=10.1038/nn1105;
+RA   Goeke S., Greene E.A., Grant P.K., Gates M.A., Crowner D., Aigaki T.,
+RA   Giniger E.;
+RT   "Alternative splicing of lola generates 19 transcription factors
+RT   controlling axon guidance in Drosophila.";
+RL   Nat. Neurosci. 6:917-924(2003).
+CC   -!- FUNCTION: Putative transcription factor required for axon growth
+CC       and guidance in the central and peripheral nervous systems. Repels
+CC       CNS axons away from the midline by promoting the expression of the
+CC       midline repellent sli and its receptor robo.
+CC       {ECO:0000269|PubMed:11880341, ECO:0000269|PubMed:8050351}.
+CC   -!- SUBCELLULAR LOCATION: Nucleus {ECO:0000269|PubMed:8050351}.
+CC   -!- ALTERNATIVE PRODUCTS:
+CC       Event=Alternative splicing; Named isoforms=22;
+CC         Comment=Some isoforms may be generated by alternative
+CC         trans-splicing of exons sequentially encoded by the same DNA
+CC         strand.;
+CC       Name=V; Synonyms=Ohsako-G;
+CC         IsoId=P42284-2; Sequence=Displayed;
+CC       Name=H; Synonyms=Ohsako-M;
+CC         IsoId=P42284-3; Sequence=VSP_015404, VSP_015406;
+CC       Name=M; Synonyms=Short, Ohsako-A;
+CC         IsoId=P42284-1; Sequence=VSP_015403, VSP_015405;
+CC         Note=Ref.1 (AAA19592) sequence is in conflict in position:
+CC         465:I->YEL. {ECO:0000305};
+CC       Name=A; Synonyms=Ohsako-D;
+CC         IsoId=Q7KQZ4-2; Sequence=External;
+CC       Name=B; Synonyms=C, Ohsako-L;
+CC         IsoId=Q7KQZ4-1; Sequence=External;
+CC         Note=C-terminal exons may be joined by a trans-splicing event.
+CC         The exons are coded by the same DNA strand.;
+CC       Name=D; Synonyms=E, Ohsako-F;
+CC         IsoId=Q7KQZ4-3; Sequence=External;
+CC       Name=F; Synonyms=Ohsako-I;
+CC         IsoId=Q867Z4-2; Sequence=External;
+CC       Name=G; Synonyms=Long, Ohsako-T, R;
+CC         IsoId=P42283-1; Sequence=External;
+CC         Note=C-terminal exons may be joined by a trans-splicing event.
+CC         The exons are coded by the same DNA strand.;
+CC       Name=I; Synonyms=Ohsako-K;
+CC         IsoId=Q867Z4-1; Sequence=External;
+CC       Name=J; Synonyms=Ohsako-O;
+CC         IsoId=Q9V5M6-2; Sequence=External;
+CC       Name=K; Synonyms=Ohsako-H;
+CC         IsoId=Q867Z4-3; Sequence=External;
+CC       Name=L; Synonyms=Ohsako-C;
+CC         IsoId=Q7KQZ4-4; Sequence=External;
+CC       Name=N;
+CC         IsoId=Q9V5M3-1; Sequence=External;
+CC         Note=No experimental confirmation available.;
+CC       Name=O; Synonyms=Ohsako-P;
+CC         IsoId=Q9V5M3-2; Sequence=External;
+CC       Name=P; Synonyms=Ohsako-N;
+CC         IsoId=Q9V5M6-1; Sequence=External;
+CC       Name=Q; Synonyms=Ohsako-B;
+CC         IsoId=Q9V5M6-3; Sequence=External;
+CC       Name=S;
+CC         IsoId=Q9V5M6-4; Sequence=External;
+CC         Note=No experimental confirmation available.;
+CC       Name=T; Synonyms=U, Ohsako-J;
+CC         IsoId=Q867Z4-5; Sequence=External;
+CC       Name=W; Synonyms=Ohsako-Q;
+CC         IsoId=Q9V5M3-3; Sequence=External;
+CC       Name=X; Synonyms=Ohsako-S;
+CC         IsoId=Q9V5M3-4; Sequence=External;
+CC       Name=Y; Synonyms=Ohsako-R;
+CC         IsoId=Q9V5M3-5; Sequence=External;
+CC       Name=Z; Synonyms=Ohsako-E;
+CC         IsoId=Q9V5M6-5; Sequence=External;
+CC   -!- TISSUE SPECIFICITY: Mostly neuronal. {ECO:0000269|PubMed:8050351}.
+CC   -!- DEVELOPMENTAL STAGE: Expressed both maternally and zygotically. At
+CC       least one isoform is present at each developmental stage.
+CC       {ECO:0000269|PubMed:12538650, ECO:0000269|PubMed:12897787,
+CC       ECO:0000269|PubMed:8050351}.
+DR   EMBL; U07606; AAA19592.1; -; mRNA.
+DR   EMBL; AB107272; BAC67577.1; -; mRNA.
+DR   EMBL; AB107278; BAC67583.1; -; mRNA.
+DR   EMBL; AB107284; BAC67589.1; -; mRNA.
+DR   EMBL; AB107292; BAC67597.1; -; mRNA.
+DR   EMBL; AB107298; BAC67603.1; -; mRNA.
+DR   EMBL; AB107304; BAC67609.1; -; mRNA.
+DR   EMBL; AB107312; BAC67617.1; -; mRNA.
+DR   EMBL; AB107318; BAC67623.1; -; mRNA.
+DR   EMBL; AB107324; BAC67629.1; -; mRNA.
+DR   EMBL; AB107332; BAC67637.1; -; mRNA.
+DR   EMBL; AB107338; BAC67643.1; -; mRNA.
+DR   EMBL; AB107344; BAC67649.1; -; mRNA.
+DR   EMBL; AE013599; AAF58777.2; -; Genomic_DNA.
+DR   EMBL; AE013599; AAO41431.1; -; Genomic_DNA.
+DR   EMBL; AE013599; AAS64877.1; -; Genomic_DNA.
+DR   RefSeq; NP_724945.1; NM_170617.5. [P42284-3]
+DR   RefSeq; NP_788320.1; NM_176140.4. [P42284-1]
+DR   RefSeq; NP_995807.1; NM_206085.4. [P42284-2]
+DR   UniGene; Dm.11710; -.
+DR   ProteinModelPortal; P42284; -.
+DR   SMR; P42284; -.
+DR   BioGrid; 69126; 44.
+DR   PRIDE; P42284; -.
+DR   EnsemblMetazoa; FBtr0089346; FBpp0088380; FBgn0283521. [P42284-3]
+DR   EnsemblMetazoa; FBtr0089362; FBpp0088396; FBgn0283521. [P42284-1]
+DR   EnsemblMetazoa; FBtr0089363; FBpp0088949; FBgn0283521. [P42284-2]
+DR   GeneID; 44548; -.
+DR   CTD; 44548; -.
+DR   FlyBase; FBgn0283521; lola.
+DR   eggNOG; ENOG410IXYF; Eukaryota.
+DR   eggNOG; ENOG4111M67; LUCA.
+DR   GeneTree; ENSGT00530000064321; -.
+DR   OrthoDB; EOG091G0WNB; -.
+DR   ChiTaRS; lola; fly.
+DR   GenomeRNAi; 44548; -.
+DR   Proteomes; UP000000803; Chromosome 2R.
+DR   Bgee; FBgn0005630; -.
+DR   ExpressionAtlas; P42284; differential.
+DR   Genevisible; P42284; DM.
+DR   GO; GO:0005654; C:nucleoplasm; HDA:FlyBase.
+DR   GO; GO:0005634; C:nucleus; IDA:UniProtKB.
+DR   GO; GO:0003700; F:DNA binding transcription factor activity; ISS:FlyBase.
+DR   GO; GO:0019730; P:antimicrobial humoral response; IMP:FlyBase.
+DR   GO; GO:0007411; P:axon guidance; IMP:UniProtKB.
+DR   GO; GO:0016199; P:axon midline choice point recognition; IMP:UniProtKB.
+DR   GO; GO:0007409; P:axonogenesis; IMP:UniProtKB.
+DR   GO; GO:0048813; P:dendrite morphogenesis; IMP:FlyBase.
+DR   GO; GO:0008406; P:gonad development; IMP:FlyBase.
+DR   GO; GO:0035167; P:larval lymph gland hemopoiesis; IMP:FlyBase.
+DR   GO; GO:0007526; P:larval somatic muscle development; IMP:FlyBase.
+DR   GO; GO:0045476; P:nurse cell apoptotic process; IMP:FlyBase.
+DR   GO; GO:0045893; P:positive regulation of transcription, DNA-templated; ISS:UniProtKB.
+DR   GO; GO:0007464; P:R3/R4 cell fate commitment; IMP:FlyBase.
+DR   GO; GO:0045467; P:R7 cell development; IMP:FlyBase.
+DR   GO; GO:0044719; P:regulation of imaginal disc-derived wing size; IMP:FlyBase.
+DR   GO; GO:0006355; P:regulation of transcription, DNA-templated; IMP:FlyBase.
+DR   GO; GO:0006351; P:transcription, DNA-templated; IEA:UniProtKB-KW.
+DR   InterPro; IPR000210; BTB/POZ_dom.
+DR   InterPro; IPR011333; SKP1/BTB/POZ_sf.
+DR   Pfam; PF00651; BTB; 1.
+DR   SMART; SM00225; BTB; 1.
+DR   SUPFAM; SSF54695; SSF54695; 1.
+DR   PROSITE; PS50097; BTB; 1.
+PE   1: Evidence at protein level;
+KW   Alternative splicing; Complete proteome; Developmental protein;
+KW   Differentiation; Neurogenesis; Nucleus; Reference proteome;
+KW   Transcription; Transcription regulation.
+FT   CHAIN         1    549       Longitudinals lacking protein, isoforms
+FT                                H/M/V.
+FT                                /FTId=PRO_0000047073.
+FT   DOMAIN       32     97       BTB. {ECO:0000255|PROSITE-
+FT                                ProRule:PRU00037}.
+FT   VAR_SEQ     455    518       DVSTNQTVVLPHYSIYHYYSNIYYLLSHTTIYEADRTVSVS
+FT                                CPGKLNCLPQRNDLQETKSVTVL -> DEAGQNEGGESRIR
+FT                                VRNWLMLADKSIIGKSSDEPSVLHIVLLLSTHRHIISFLLI
+FT                                IQSFIDKIY (in isoform H).
+FT                                {ECO:0000303|PubMed:12853139}.
+FT                                /FTId=VSP_015404.
+FT   VAR_SEQ     455    465       DVSTNQTVVLP -> GECLLPLKSII (in isoform
+FT                                M). {ECO:0000303|PubMed:12853139,
+FT                                ECO:0000303|PubMed:8050351}.
+FT                                /FTId=VSP_015403.
+FT   VAR_SEQ     466    549       Missing (in isoform M).
+FT                                {ECO:0000303|PubMed:12853139,
+FT                                ECO:0000303|PubMed:8050351}.
+FT                                /FTId=VSP_015405.
+FT   VAR_SEQ     519    549       Missing (in isoform H).
+FT                                {ECO:0000303|PubMed:12853139}.
+FT                                /FTId=VSP_015406.
+FT   MUTAGEN     107    107       A->V: In ORE120; defective in embryonic
+FT                                axon guidance.
+FT                                {ECO:0000269|PubMed:11880341}.
+SQ   SEQUENCE   549 AA;  59323 MW;  0FB6C88602ADAB49 CRC64;
+     MDDDQQFCLR WNNHQSTLIS VFDTLLENET LVDCTLAAEG KFLKAHKVVL SACSPYFATL
+     LQEQYDKHPI FILKDVKYQE LRAMMDYMYR GEVNISQDQL AALLKAAESL QIKGLSDNRT
+     GGGVAPKPES SGHHRGGKLS GAYTLEQTKR ARLATGGAMD TSGDVSGSRE GSSSPSRRRR
+     KVRRRSMEND AHDNSNSSVL QAAASNQSIL QQTGAGLAVS ALVTTQLSSG PAAGTSSQAS
+     STQQQQPLTS TNVTKKTESA KLTSSTAAPA SGASASAAVQ QAHLHQQQAQ TTSDAINTEN
+     VQAQSQGGAQ GVQGDDEDID EGSAVGGPNS ATGPNPASAS ASAVHAGVVV KQLASVVDKS
+     SSNHKHKIKD NSVSSVGSEM VIEPKAEYDD DAHDENVEDL TLDEEDMTME ELDQTAGTSQ
+     GGEGSSQTYA TWQHDRSQDE LGLMAQDAQQ RDPQDVSTNQ TVVLPHYSIY HYYSNIYYLL
+     SHTTIYEADR TVSVSCPGKL NCLPQRNDLQ ETKSVTVLYT IHFFLYILMI YIFVLCKILP
+     RIVFVWVST
+//
