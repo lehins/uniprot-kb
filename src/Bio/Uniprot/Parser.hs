@@ -14,7 +14,6 @@ import           Data.Bifunctor       (second)
 import           Data.Functor         (($>))
 import           Data.Text            (Text, append, concat, init, null, pack,
                                        splitOn, unpack, unwords)
-import           Data.Void
 
 -- |Describes possible name type of DE section.
 data NameType = RecName | AltName | SubName | Flags | None
