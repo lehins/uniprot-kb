@@ -164,9 +164,15 @@ data BibliographicDB = MEDLINE
                      | AGRICOLA
   deriving (Generic, Show, Eq, Ord, Bounded, Enum)
 
+-- |Reference Number - a sequential number to each reference citation in an entry.
+data RN = RN
+  { number   :: Int
+  , evidence :: [Text]
+  } deriving (Generic, Show, Eq, Ord)
+
 -- |Reference lines.
 data Reference = Reference
-  { rn :: Int                       -- ^Reference Number - a sequential number to each reference citation in an entry.
+  { rn :: RN                        -- ^Reference Number - a sequential number to each reference citation in an entry.
   , rp :: Text                      -- ^Reference Position - the extent of the work relevant to the entry carried out by the authors.
   , rc :: [(Token, Text)]           -- ^Reference Comment - comments relevant to the reference cited.
   , rx :: [(BibliographicDB, Text)] -- ^Reference cross-reference - the identifier assigned to a specific reference in a bibliographic database.

@@ -12,6 +12,7 @@ import           Control.Monad        (unless, when)
 import           Data.Attoparsec.Text
 import           Data.Bifunctor       (second)
 import           Data.Functor         (($>))
+import           Data.Monoid          ((<>))
 import           Data.Text            (Text, append, concat, init, null, pack,
                                        splitOn, unpack, unwords)
 
@@ -234,8 +235,11 @@ parseRef = do
     rl <- parseRL
     pure Reference{..}
   where
-    parseRN :: Parser Int
-    parseRN = (string "RN   [" *> decimal) <* char ']'
+    parseRN :: Parser RN
+    parseRN = do
+        number <- (string "RN   [" *> decimal) <* char ']'
+        evidence <- many' (char ' ' *> parseEvidence)
+        pure RN{..}
 
     parseRP :: Parser Text
     parseRP = do
@@ -383,6 +387,10 @@ parseRecord = Record <$>           (parseID  <* endOfLine)
                      <*>           (parseSQ  <* endOfLine)
                      <*            parseEnd
 
+parseEvidence :: Parser Text
+parseEvidence = (\x y z -> x <> y <> z) <$>
+                  string "{" <*> (pack <$> many1 (notChar '}')) <*> string "}"
+
 -- = Helper parsers
 
 -- |Transforms any parser to a parser of maybe value.
@@ -453,6 +461,6 @@ hyphenConcat (x:y:ys) = x ++ hyphenConcat (sy:ys)
     sy | last x == '-'                  = tail y
        | isAA (last x) && isAA (y !! 1) = tail y
        | otherwise                      = y
-    
+
     isAA :: Char -> Bool
     isAA = inClass "ACDEFGHIKLMNPQRSTVWY"
