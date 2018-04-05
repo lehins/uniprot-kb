@@ -314,8 +314,9 @@ parseFT = do
     fromEP <- parseFTEndpoint
     many1 space
     toEP <- parseFTEndpoint
-    many1 space
-    description <- splitByMagic <$> parseMultiLineComment "FT" 32
+    description <- splitByMagic <$>
+                     ((many' (char ' ') *> parseMultiLineComment "FT" 32) <|>
+                      (hyphenConcat <$> parseMultiLine "FT" 32))
     pure FT{..}
   where
     -- |Parse FT endpoint
@@ -331,6 +332,7 @@ parseFT = do
     splitByMagic txt = pack <$> splitStr 0 [] txt
       where
         splitStr :: Int -> String -> String -> [String]
+        splitStr _ _   []           = []
         splitStr 0 acc ['.']        = [reverse acc]
         splitStr 0 acc ('.':' ':xs) = reverse acc : splitStr 0 [] xs
         splitStr 0 acc ('.':xs)     = reverse acc : splitStr 0 [] xs
@@ -420,11 +422,16 @@ parseTillEnd = many1 $ satisfy (not . isEndOfLine)
 parseMultiLineComment :: Text -> Int -> Parser String
 parseMultiLineComment start skip = do
     comm <- (:) <$> parseTillEnd
-                <*> many' (do endOfLine
-                              string start
-                              count (skip - 1) (char ' ') -- leave one space to separate words
-                              parseTillEnd)
+                <*> parseMultiLine start skip
     pure $ hyphenConcat comm
+
+-- |Parses multiline comment from new line.
+parseMultiLine :: Text -> Int -> Parser [String]
+parseMultiLine start skip = many' $ do
+    endOfLine
+    string start
+    count (skip - 1) (char ' ') -- leave one space to separate words
+    parseTillEnd
 
 -- |Parses line break for multiline section.
 parseBreak :: Text -> Parser ()
