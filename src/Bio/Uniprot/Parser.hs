@@ -3,18 +3,19 @@
 {-# LANGUAGE TupleSections     #-}
 module Bio.Uniprot.Parser where
 
-import           Prelude              hiding (init, null)
-import qualified Prelude              as P (concat, id, init)
+import           Prelude              hiding (null)
+import qualified Prelude              as P (concat, id, init, last, null, tail)
 
 import           Bio.Uniprot.Type
 import           Control.Applicative  (liftA2, (<|>))
 import           Control.Monad        (unless, when)
 import           Data.Attoparsec.Text
 import           Data.Bifunctor       (second)
+import           Data.Char            (isSpace)
 import           Data.Functor         (($>))
 import           Data.Monoid          ((<>))
 import           Data.Text            (Text, append, concat, init, null, pack,
-                                       splitOn, unpack, unwords)
+                                       splitOn, unpack, unwords, isPrefixOf)
 
 -- |Describes possible name type of DE section.
 data NameType = RecName | AltName | SubName | Flags | None
@@ -80,7 +81,7 @@ parseDE = do
     subNames <- many' (endOfLine *> parseNameDE 0 SubName)
     includes <- many' (endOfLine *> parseInternal "Includes")
     contains <- many' (endOfLine *> parseInternal "Contains")
-    flags    <- optional (endOfLine *> parseFlagsDE)
+    flags    <- option [] (endOfLine *> parseFlagsDE)
     pure DE{..}
   where
     -- |Parses name section like RecName, AltName or SubName.
@@ -92,8 +93,9 @@ parseDE = do
         pure Name{..}
 
     -- |Parses flag line of DE section
-    parseFlagsDE :: Parser Flag
-    parseFlagsDE = read . unpack <$> parseDELine 0 Flags ""
+    parseFlagsDE :: Parser [Flag]
+    parseFlagsDE = fmap (read . unpack) .
+                       ("; " `splitOn`) <$> parseDELine 0 Flags ""
 
     -- |Parses AltName lines of DE section
     parseAltDE :: Int -> Parser AltName
@@ -116,9 +118,8 @@ parseDE = do
             string tpe
             string "="
             pure ()
-        res <- pack <$> many1 (notChar ';')
-        char ';'
-        pure res
+        result <- pack . P.init <$> many1 (satisfy (not . isEndOfLine))
+        pure . head $ " {ECO" `splitOn` result
 
     -- |Parses internal DE entities
     parseInternal :: Text -> Parser DE
@@ -127,13 +128,13 @@ parseDE = do
         endOfLine
         recName  <- optional $ parseNameDE 2 RecName
         altNames <- many' (endOfLine *> parseAltDE 2)
-        pure $ DE recName altNames [] [] [] Nothing
+        pure $ DE recName altNames [] [] [] []
 
 -- |Parses DE lines of UniProt-KB text file.
 parseGN :: Parser [GN]
 parseGN = do
     string "GN   "
-    geneName <- optional parseGNName
+    geneName <- optional $ parseDefItem "Name"
     optional $ parseBreak "GN"
     synonyms <- option [] $ parseGNList "Synonyms"
     optional $ parseBreak "GN"
@@ -141,64 +142,73 @@ parseGN = do
     optional $ parseBreak "GN"
     orfNames <- option [] $ parseGNList "ORFNames"
     let gn = GN{..}
+    optional $ parseBreak "GN"
     rest <- option [] $ string "and" *> endOfLine *> parseGN
     pure $ gn:rest
   where
-    -- |Parses `Name` item of GN line
-    parseGNName :: Parser Text
-    parseGNName = parseDefItem "Name" (P.id <$>)
-
     -- |Parses any list item of GN line (like `Synonyms` or `ORFNames`)
     parseGNList :: Text -> Parser [Text]
-    parseGNList name = parseDefItem name (splitOn ", " <$>)
+    parseGNList name = splitOn ", " <$> parseDefItem name
 
 -- |Parses OS lines for one record of UniProt-KB text file.
 parseOS :: Parser OS
-parseOS = OS . pack <$> parseOSStr
-  where
-    parseOSStr :: Parser String
-    parseOSStr = do
-        string "OS   "
-        namePart <- many1 (satisfy $ not . isEndOfLine)
-        if last namePart == '.'
-          then pure $ P.init namePart
-          else do
-              rest <- endOfLine *> parseOSStr
-              pure $ namePart ++ rest
+parseOS = OS . pack . P.init <$> (string "OS   " >> parseMultiLineComment "OS" 3)
 
 -- |Parser OG line of UniProt-KB text file.
 parseOG :: Parser OG
-parseOG = parseOGNonPlasmid <|> (Plasmid <$> parseOGPlasmid)
+parseOG = (parseOGNonPlasmid <* many' (char ' ' >> parseEvidence) <* char '.') <|>
+          (Plasmid <$> parseOGPlasmid)
   where
     parseOGNonPlasmid :: Parser OG
     parseOGNonPlasmid = string "OG   " *>
-      (string "Hydrogenosome." $> Hydrogenosome) <|>
-      (string "Mitochondrion." $> Mitochondrion) <|>
-      (string "Nucleomorph." $> Nucleomorph) <|>
-      (string "Plastid." $> Plastid PlastidSimple) <|>
-      (string "Plastid; Apicoplast." $> Plastid PlastidApicoplast) <|>
-      (string "Plastid; Chloroplast." $> Plastid PlastidChloroplast) <|>
-      (string "Plastid; Organellar chromatophore." $> Plastid PlastidOrganellarChromatophore) <|>
-      (string "Plastid; Cyanelle." $> Plastid PlastidCyanelle) <|>
-      (string "Plastid; Non-photosynthetic plastid." $> Plastid PlastidNonPhotosynthetic)
+      ((string "Hydrogenosome" $> Hydrogenosome) <|>
+       (string "Mitochondrion" $> Mitochondrion) <|>
+       (string "Nucleomorph" $> Nucleomorph) <|>
+       (string "Plastid; Apicoplast" $> Plastid PlastidApicoplast) <|>
+       (string "Plastid; Chloroplast" $> Plastid PlastidChloroplast) <|>
+       (string "Plastid; Organellar chromatophore" $> Plastid PlastidOrganellarChromatophore) <|>
+       (string "Plastid; Cyanelle" $> Plastid PlastidCyanelle) <|>
+       (string "Plastid; Non-photosynthetic plastid" $> Plastid PlastidNonPhotosynthetic) <|>
+       (string "Plastid" $> Plastid PlastidSimple))
 
     parseOGPlasmid :: Parser [Text]
     parseOGPlasmid = do
         string "OG   "
-        name <- parseOnePlasmid
-        let separator = string "," >> optional " and"
-        rest <- many' $ separator *> space *> parseOnePlasmid
-        rest2 <- (char '.' $> []) <|> (separator *> endOfLine *> parseOGPlasmid)
+        name <- parseAnyPlasmid
+        let separator = char ',' >> optional " and"
+        rest <- many' $ separator *> char ' ' *> parseAnyPlasmid
+        optional separator
+        rest2 <- P.concat <$> many' (endOfLine *> parseOGPlasmid)
         pure $ name : rest ++ rest2
+
+    parseAnyPlasmid :: Parser Text
+    parseAnyPlasmid = parseOnePlasmid <|>
+                      (("Plasmid" <* optional (char ' ' >> parseEvidence)
+                                  <* optional (char '.')) $> "") -- ABSAA_ALCSP hack
 
     parseOnePlasmid :: Parser Text
     parseOnePlasmid = do
         string "Plasmid "
-        pack <$> many1 (satisfy $ liftA2 (&&) (notInClass ",.") (not . isEndOfLine))
+        pack <$> parsePlasmidName
+
+    parsePlasmidName :: Parser String
+    parsePlasmidName = do
+        let p = many1 (satisfy $ liftA2 (&&) (notInClass ",{") (not . isEndOfLine))
+        part <- p
+        nextChar <- peekChar
+        plasmid <- case nextChar of
+          Just '{' -> parseEvidence >> optional (char '.') $> P.init part
+          _        -> pure part
+        pure $ if P.last plasmid == '.' then P.init plasmid else plasmid
+
+    countElem :: Eq a => [a] -> a -> Int
+    countElem []     _             = 0
+    countElem (x:xs) y | x == y    = 1 + countElem xs y
+                       | otherwise = countElem xs y
 
 -- |Parser OC line of UniProt-KB text file.
 parseOC :: Parser OC
-parseOC = parseNodes ';' '.' "OC" OC
+parseOC = OC <$> parseNodes "OC" ';' '.'
 
 -- |Parses OX lines of UniProt-KB text file.
 parseOX :: Parser OX
@@ -215,9 +225,11 @@ parseOH :: Parser OH
 parseOH = do
     string "OH   NCBI_TaxID="
     taxId <- pack <$> many1 (notChar ';')
-    string "; "
-    hostName <- pack <$> many1 (notChar '.')
-    char '.'
+    char ';'
+    hostName' <- many' (satisfy $ not . isEndOfLine)
+    let hostName = pack $ if P.null hostName'
+                            then ""
+                            else P.tail . P.init $ hostName'
     pure OH{..}
 
 -- |Parses RN, RP, RC, RX, RG, RA, RT and RL lines of UniProt-KB text file.
@@ -229,17 +241,18 @@ parseRef = do
     endOfLine
     rc <- option [] (parseRCX STRAIN "RC" <* endOfLine)
     rx <- option [] (parseRCX MEDLINE "RX" <* endOfLine)
-    rg <- optional  (parseRG <* endOfLine)
-    ra <- option [] (parseNodes ',' ';' "RA" P.id <* endOfLine)
+    rg <- option [] (many' $ parseRG <* endOfLine)
+    ra <- option [] (parseNodes "RA" ',' ';' <* endOfLine)
     rt <- optional  (parseRT <* endOfLine)
     rl <- parseRL
     pure Reference{..}
   where
-    parseRN :: Parser RN
+    parseRN :: Parser Int
     parseRN = do
         number <- (string "RN   [" *> decimal) <* char ']'
-        evidence <- many' (char ' ' *> parseEvidence)
-        pure RN{..}
+        -- Despite the specification, edivence may be presented here
+        _ <- many' (char ' ' *> parseEvidence)
+        pure number
 
     parseRP :: Parser Text
     parseRP = do
@@ -254,7 +267,7 @@ parseRef = do
      where
        parseTokPair :: (Enum a, Show a) => a -> Parser (a, Text)
        parseTokPair x = foldl1 (<|>) $
-                          (\x -> (x,) <$> parseDefItem (pack . show $ x) (P.id <$>)) <$> [x..]
+                          (\x -> (x,) <$> parseDefItem (pack . show $ x)) <$> [x..]
 
     parseRG :: Parser Text
     parseRG = pack <$> (string "RG   " *> many1 (satisfy $ not . isEndOfLine))
@@ -279,7 +292,7 @@ parseCC = do
     topic <- pack <$> many1 (notChar ':')
     char ':'
     (char ' ' $> ()) <|> (endOfLine >> string "CC" >> count 7 space $> ())
-    comment <- pack <$> parseMultiLineComment "CC" 7
+    comment <- head . (" {ECO" `splitOn`) . pack <$> parseMultiLineComment "CC" 7
     pure CC{..}
 
 -- |Parses DR lines of UniProt-KB text file.
@@ -287,15 +300,28 @@ parseDR :: Parser DR
 parseDR = do
     string "DR   "
     resourceAbbr <- parseToken
-    string "; "
+    char ' '
     resourceId <- parseToken
-    string "; "
-    optionalInfo' <- (:) <$> parseToken <*> many' (string "; " *> parseToken)
-    let optionalInfo = P.init optionalInfo' ++ [init . last $ optionalInfo']
+    optionalInfo <- many1 (char ' ' *> parseToken)
     pure DR{..}
   where
     parseToken :: Parser Text
-    parseToken = pack <$> many1 (satisfy $ liftA2 (&&) (notInClass ";") (not . isEndOfLine))
+    parseToken = pack <$> parseTokenStr
+
+    parseTokenStr :: Parser String
+    parseTokenStr = do
+        part <- many1 (satisfy $ liftA2 (&&) (/=';') (not . isEndOfLine))
+        nextChar <- peekChar
+        case nextChar of
+          Nothing  -> pure . P.init $ part
+          Just ';' -> do
+              char ';'
+              nextChar <- peekChar
+              case nextChar of
+                Nothing -> fail "You cannot be here"
+                Just c  | isSpace c -> pure part
+                Just c  -> (part <>) . (';':) <$> parseTokenStr
+          Just c  -> pure . P.init $ part
 
 -- |Parses PE line of UniProt-KB text file.
 parsePE :: Parser PE
@@ -307,7 +333,7 @@ parsePE = (string "PE   1: Evidence at protein level;" $> EvidenceAtProteinLevel
 
 -- |Parses KW lines of UniProt-KB text file.
 parseKW :: Parser KW
-parseKW = parseNodes ';' '.' "KW" KW
+parseKW = KW <$> parseNodes "KW" ';' '.'
 
 -- |Parses FT lines of UniProt-KB text file. One FT section is parsed.
 parseFT :: Parser FT
@@ -318,7 +344,7 @@ parseFT = do
     fromEP <- parseFTEndpoint
     many1 space
     toEP <- parseFTEndpoint
-    description <- splitByMagic <$>
+    description <- filter (not . ("{ECO" `isPrefixOf`)) . splitByMagic <$>
                      ((many' (char ' ') *> parseMultiLineComment "FT" 32) <|>
                       (hyphenConcat <$> parseMultiLine "FT" 32))
     pure FT{..}
@@ -359,7 +385,7 @@ parseSQ = do
     space >> string "CRC64;"
     endOfLine
     sequence <- pack . P.concat <$>
-                  many1 (skipSpace *> many1 (satisfy $ inClass "ACDEFGHIKLMNPQRSTVWY"))
+                  many1 (skipSpace *> many1 (satisfy $ inClass "A-Z"))
     pure SQ{..}
 
 -- |Parses end of one UniProt record.
@@ -374,7 +400,7 @@ parseRecord = Record <$>           (parseID  <* endOfLine)
                      <*>           (parseDE  <* endOfLine)
                      <*> option [] (parseGN  <* endOfLine)
                      <*>           (parseOS  <* endOfLine)
-                     <*> optional  (parseOG  <* endOfLine)
+                     <*> many'     (parseOG  <* endOfLine)
                      <*>           (parseOC  <* endOfLine)
                      <*>           (parseOX  <* endOfLine)
                      <*> many'     (parseOH  <* endOfLine)
@@ -403,22 +429,29 @@ parseEvidence = (\x y z -> x <> y <> z) <$>
 optional :: Parser a -> Parser (Maybe a)
 optional par = option Nothing (Just <$> par)
 
--- |Parses lines, that contain nodes splitted by ';' and ended by '.'.
-parseNodes :: Char          -- ^Delimeter char, that splits the nodes.
+-- |Parses lines, that contain nodes splitted by `del` and ended by `end`.
+parseNodes :: Text          -- ^Start 2-letter mark.
+           -> Char          -- ^Delimeter char, that splits the nodes.
            -> Char          -- ^Terminal char, that ends the node list.
-           -> Text          -- ^Start 2-letter mark.
-           -> ([Text] -> a) -- ^Text modifier
-           -> Parser a
-parseNodes del end start f = do
-    string start >> count 3 space
-    name <- parseNode
-    rest <- many' $ do
-        char del
-        string " " <|> (endOfLine >> string start >> count 3 space >> pure "")
-        parseNode
-    char end
-    pure $ f (name:rest)
+           -> Parser [Text]
+parseNodes start del end = do
+    string start >> count 3 (char ' ')
+    parseNodesNoStart
   where
+    parseNodesNoStart :: Parser [Text]
+    parseNodesNoStart = do
+        part <- parseNode
+        c <- char del <|> char end
+        if c == del
+          then do (char ' ' $> ()) <|> (endOfLine >> string start >> count 3 (char ' ') $> ())
+                  (part :) <$> parseNodesNoStart
+          else do nextChar <- peekChar
+                  case nextChar of
+                    Nothing                -> pure [part]
+                    Just c | isEndOfLine c -> pure [part]
+                    Just c                 -> do (x:xs) <- parseNodesNoStart
+                                                 pure (part <> x : xs)
+
     parseNode :: Parser Text
     parseNode = pack <$> many1 (satisfy $ liftA2 (&&) (notInClass [del,end]) (not . isEndOfLine))
 
@@ -428,10 +461,9 @@ parseTillEnd = many1 $ satisfy (not . isEndOfLine)
 
 -- |Parses multiline comment as one string.
 parseMultiLineComment :: Text -> Int -> Parser String
-parseMultiLineComment start skip = do
-    comm <- (:) <$> parseTillEnd
-                <*> parseMultiLine start skip
-    pure $ hyphenConcat comm
+parseMultiLineComment start skip = hyphenConcat <$>
+                                     ((:) <$> parseTillEnd
+                                          <*> parseMultiLine start skip)
 
 -- |Parses multiline comment from new line.
 parseMultiLine :: Text -> Int -> Parser [String]
@@ -446,10 +478,30 @@ parseBreak :: Text -> Parser ()
 parseBreak txt = ((endOfLine >> string txt >> string "   ") <|> string " ") $> ()
 
 -- |Parses one item like "Something=Something else;"
-parseDefItem :: Text -> (Parser Text -> Parser a) -> Parser a
-parseDefItem name f = do
+parseDefItem :: Text -> Parser Text
+parseDefItem name = do
     string name >> char '='
-    f (pack <$> many1 (notChar ';')) <* char ';'
+    head . (" {" `splitOn`) . pack <$> parseTillChar ';'
+
+-- |Parses line till specific char (e.g. semicolon or dot) before space/endOfLine/endOfInput.
+parseTillChar :: Char -> Parser String
+parseTillChar c = do
+    part <- many1 $ satisfy $ liftA2 (&&) (/=c) (not . isEndOfLine)
+    nextChar <- peekChar
+    case nextChar of
+      Nothing                -> fail "You cannot be here!"
+      Just d | d == c        -> do
+          char c
+          nextChar <- peekChar
+          case nextChar of
+            Nothing -> pure part
+            Just d  | isSpace d -> pure part
+            Just d  -> (part <>) . (d:) <$> parseTillChar c
+      Just d | isEndOfLine d -> do
+          endOfLine
+          count 2 anyChar
+          count 2 (char ' ')
+          (part <>) <$> parseTillChar c
 
 -- |Delete needless space after hyphen on concat.
 hyphenConcat :: [String] -> String
@@ -463,4 +515,4 @@ hyphenConcat (x:y:ys) = x ++ hyphenConcat (sy:ys)
        | otherwise                      = y
 
     isAA :: Char -> Bool
-    isAA = inClass "ACDEFGHIKLMNPQRSTVWY"
+    isAA = inClass "A-Z"

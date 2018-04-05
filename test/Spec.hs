@@ -707,23 +707,23 @@ dtAns = DT "01-NOV-1997" "Swiss-Prot" "17-APR-2007" 3 "28-FEB-2018" 163
 
 deAns :: DE
 deAns = DE (Just (Name "Programmed cell death protein 1" ["Protein PD-1", "hPD-1"] []))
-           [CDAntigen "CD279"] [] [] [] (Just Precursor)
+           [CDAntigen "CD279"] [] [] [] [Precursor]
 
 de2Ans :: DE
 de2Ans = DE (Just (Name "Arginine biosynthesis bifunctional protein argJ" [] [])) [] []
             [DE (Just (Name "Glutamate N-acetyltransferase" [] ["2.3.1.35"]))
                 [Simple (Name "Ornithine acetyltransferase" ["OATase"] []),
                  Simple (Name "Ornithine transacetylase" [] [])]
-                [] [] [] Nothing,
+                [] [] [] [],
              DE (Just (Name "Amino-acid acetyltransferase" [] ["2.3.1.1"]))
                 [Simple (Name "N-acetylglutamate synthase" ["AGS"] [])]
-                [] [] [] Nothing
+                [] [] [] []
             ]
             [DE (Just (Name "Arginine biosynthesis bifunctional protein argJ alpha chain" [] []))
-                [] [] [] [] Nothing,
+                [] [] [] [] [],
              DE (Just (Name "Arginine biosynthesis bifunctional protein argJ beta chain" [] []))
-                [] [] [] [] Nothing]
-            Nothing
+                [] [] [] [] []]
+            []
 
 gnAns :: [GN]
 gnAns = [GN (Just "PDCD1") ["PD1"] [] []]
@@ -747,24 +747,24 @@ oxAns :: OX
 oxAns = OX "NCBI_TaxID" "9606"
 
 refAns :: [Reference]
-refAns = [Reference 1 "NUCLEOTIDE SEQUENCE [GENOMIC DNA]" [] [(PubMed,"7851902"),(DOI,"10.1006/geno.1994.1562")] Nothing ["Shinohara T.","Taniwaki M.","Ishida Y.","Kawaich M.","Honjo T."] (Just "Structure and chromosomal localization of the human PD-1 gene (PDCD1).") "Genomics 23:704-706(1994)",
-          Reference 2 "NUCLEOTIDE SEQUENCE [MRNA]" [] [(PubMed,"9332365"),(DOI,"10.1016/S0378-1119(97)00260-6")] Nothing ["Finger L.R.","Pu J.","Wasserman R.","Vibhakar R.","Louie E.","Hardy R.R.","Burrows P.D.","Billips L.D."] (Just "The human PD-1 gene: complete cDNA, genomic organization, and developmentally regulated expression in B cell progenitors.") "Gene 197:177-187(1997)",
-          Reference 3 "ERRATUM" [] [] Nothing ["Finger L.R.","Pu J.","Wasserman R.","Vibhakar R.","Louie E.","Hardy R.R.","Burrows P.D.","Billips L.D."] Nothing "Gene 203:253-253(1997)",
-          Reference 4 "NUCLEOTIDE SEQUENCE [GENOMIC DNA], AND INVOLVEMENT IN SLEB2" [] [(PubMed,"12402038"),(DOI,"10.1038/ng1020")] Nothing ["Prokunina L.","Castillejo-Lopez C.","Oberg F.","Gunnarsson I.","Berg L.","Magnusson V.","Brookes A.J.","Tentler D.","Kristjansdottir H.","Grondal G.","Bolstad A.I.","Svenungsson E.","Lundberg I.","Sturfelt G.","Jonssen A.","Truedsson L.","Lima G.","Alcocer-Varela J.","Jonsson R.","Gyllensten U.B.","Harley J.B.","Alarcon-Segovia D.","Steinsson K.","Alarcon-Riquelme M.E."] (Just "A regulatory polymorphism in PDCD1 is associated with susceptibility to systemic lupus erythematosus in humans.") "Nat. Genet. 32:666-669(2002)",
-          Reference 5 "NUCLEOTIDE SEQUENCE [MRNA]" [] [] Nothing ["He X.","Xu L.","Liu Y.","Zeng Y."] (Just "Cloning of PD-1 cDNA from activated peripheral leukocytes.") "Submitted (FEB-2003) to the EMBL/GenBank/DDBJ databases",
-          Reference 6 "NUCLEOTIDE SEQUENCE [GENOMIC DNA]" [] [] Nothing ["Livingston R.J.","Shaffer T.","McFarland I.","Nguyen C.P.","Stanaway I.B.","Rajkumar N.","Johnson E.J.","da Ponte S.H.","Willa H.","Ahearn M.O.","Bertucci C.","Acklestad J.","Carroll A.","Swanson J.","Gildersleeve H.I.","Nickerson D.A."] Nothing "Submitted (OCT-2006) to the EMBL/GenBank/DDBJ databases",
-          Reference 7 "NUCLEOTIDE SEQUENCE [LARGE SCALE MRNA]" [] [(PubMed,"14702039"),(DOI,"10.1038/ng1285")] Nothing ["Ota T.","Suzuki Y.","Nishikawa T.","Otsuki T.","Sugiyama T.","Irie R.","Wakamatsu A.","Hayashi K.","Sato H.","Nagai K.","Kimura K.","Makita H.","Sekine M.","Obayashi M.","Nishi T.","Shibahara T.","Tanaka T.","Ishii S.","Yamamoto J.","Saito K.","Kawai Y.","Isono Y.","Nakamura Y.","Nagahari K.","Murakami K.","Yasuda T.","Iwayanagi T.","Wagatsuma M.","Shiratori A.","Sudo H.","Hosoiri T.","Kaku Y.","Kodaira H.","Kondo H.","Sugawara M.","Takahashi M.","Kanda K.","Yokoi T.","Furuya T.","Kikkawa E.","Omura Y.","Abe K.","Kamihara K.","Katsuta N.","Sato K.","Tanikawa M.","Yamazaki M.","Ninomiya K.","Ishibashi T.","Yamashita H.","Murakawa K.","Fujimori K.","Tanai H.","Kimata M.","Watanabe M.","Hiraoka S.","Chiba Y.","Ishida S.","Ono Y.","Takiguchi S.","Watanabe S.","Yosida M.","Hotuta T.","Kusano J.","Kanehori K.","Takahashi-Fujii A.","Hara H.","Tanase T.-O.","Nomura Y.","Togiya S.","Komai F.","Hara R.","Takeuchi K.","Arita M.","Imose N.","Musashino K.","Yuuki H.","Oshima A.","Sasaki N.","Aotsuka S.","Yoshikawa Y.","Matsunawa H.","Ichihara T.","Shiohata N.","Sano S.","Moriya S.","Momiyama H.","Satoh N.","Takami S.","Terashima Y.","Suzuki O.","Nakagawa S.","Senoh A.","Mizoguchi H.","Goto Y.","Shimizu F.","Wakebe H.","Hishigaki H.","Watanabe T.","Sugiyama A.","Takemoto M.","Kawakami B.","Yamazaki M.","Watanabe K.","Kumagai A.","Itakura S.","Fukuzumi Y.","Fujimori Y.","Komiyama M.","Tashiro H.","Tanigami A.","Fujiwara T.","Ono T.","Yamada K.","Fujii Y.","Ozaki K.","Hirao M.","Ohmori Y.","Kawabata A.","Hikiji T.","Kobatake N.","Inagaki H.","Ikema Y.","Okamoto S.","Okitani R.","Kawakami T.","Noguchi S.","Itoh T.","Shigeta K.","Senba T.","Matsumura K.","Nakajima Y.","Mizuno T.","Morinaga M.","Sasaki M.","Togashi T.","Oyama M.","Hata H.","Watanabe M.","Komatsu T.","Mizushima-Sugano J.","Satoh T.","Shirai Y.","Takahashi Y.","Nakagawa K.","Okumura K.","Nagase T.","Nomura N.","Kikuchi H.","Masuho Y.","Yamashita R.","Nakai K.","Yada T.","Nakamura Y.","Ohara O.","Isogai T.","Sugano S."] (Just "Complete sequencing and characterization of 21,243 full-length human cDNAs.") "Nat. Genet. 36:40-45(2004)",
-          Reference 8 "NUCLEOTIDE SEQUENCE [LARGE SCALE MRNA]" [] [(PubMed,"15489334"),(DOI,"10.1101/gr.2596504")] (Just "The MGC Project Team;") [] (Just "The status, quality, and expansion of the NIH full-length cDNA project: the Mammalian Gene Collection (MGC).") "Genome Res. 14:2121-2127(2004)",
-          Reference 9 "NUCLEOTIDE SEQUENCE [LARGE SCALE GENOMIC DNA]" [] [] Nothing ["Mural R.J.","Istrail S.","Sutton G.","Florea L.","Halpern A.L.","Mobarry C.M.","Lippert R.","Walenz B.","Shatkay H.","Dew I.","Miller J.R.","Flanigan M.J.","Edwards N.J.","Bolanos R.","Fasulo D.","Halldorsson B.V.","Hannenhalli S.","Turner R.","Yooseph S.","Lu F.","Nusskern D.R.","Shue B.C.","Zheng X.H.","Zhong F.","Delcher A.L.","Huson D.H.","Kravitz S.A.","Mouchard L.","Reinert K.","Remington K.A.","Clark A.G.","Waterman M.S.","Eichler E.E.","Adams M.D.","Hunkapiller M.W.","Myers E.W.","Venter J.C."] Nothing "Submitted (JUL-2005) to the EMBL/GenBank/DDBJ databases",
-          Reference 10 "FUNCTION" [] [(PubMed,"21276005"),(DOI,"10.1111/j.1749-6632.2010.05919.x")] Nothing ["Fife B.T.","Pauken K.E."] (Just "The role of the PD-1 pathway in autoimmunity and peripheral tolerance.") "Ann. N. Y. Acad. Sci. 1217:45-59(2011)"]
+refAns = [Reference 1 "NUCLEOTIDE SEQUENCE [GENOMIC DNA]" [] [(PubMed,"7851902"),(DOI,"10.1006/geno.1994.1562")] [] ["Shinohara T.","Taniwaki M.","Ishida Y.","Kawaich M.","Honjo T."] (Just "Structure and chromosomal localization of the human PD-1 gene (PDCD1).") "Genomics 23:704-706(1994)",
+          Reference 2 "NUCLEOTIDE SEQUENCE [MRNA]" [] [(PubMed,"9332365"),(DOI,"10.1016/S0378-1119(97)00260-6")] [] ["Finger L.R.","Pu J.","Wasserman R.","Vibhakar R.","Louie E.","Hardy R.R.","Burrows P.D.","Billips L.D."] (Just "The human PD-1 gene: complete cDNA, genomic organization, and developmentally regulated expression in B cell progenitors.") "Gene 197:177-187(1997)",
+          Reference 3 "ERRATUM" [] [] [] ["Finger L.R.","Pu J.","Wasserman R.","Vibhakar R.","Louie E.","Hardy R.R.","Burrows P.D.","Billips L.D."] Nothing "Gene 203:253-253(1997)",
+          Reference 4 "NUCLEOTIDE SEQUENCE [GENOMIC DNA], AND INVOLVEMENT IN SLEB2" [] [(PubMed,"12402038"),(DOI,"10.1038/ng1020")] [] ["Prokunina L.","Castillejo-Lopez C.","Oberg F.","Gunnarsson I.","Berg L.","Magnusson V.","Brookes A.J.","Tentler D.","Kristjansdottir H.","Grondal G.","Bolstad A.I.","Svenungsson E.","Lundberg I.","Sturfelt G.","Jonssen A.","Truedsson L.","Lima G.","Alcocer-Varela J.","Jonsson R.","Gyllensten U.B.","Harley J.B.","Alarcon-Segovia D.","Steinsson K.","Alarcon-Riquelme M.E."] (Just "A regulatory polymorphism in PDCD1 is associated with susceptibility to systemic lupus erythematosus in humans.") "Nat. Genet. 32:666-669(2002)",
+          Reference 5 "NUCLEOTIDE SEQUENCE [MRNA]" [] [] [] ["He X.","Xu L.","Liu Y.","Zeng Y."] (Just "Cloning of PD-1 cDNA from activated peripheral leukocytes.") "Submitted (FEB-2003) to the EMBL/GenBank/DDBJ databases",
+          Reference 6 "NUCLEOTIDE SEQUENCE [GENOMIC DNA]" [] [] [] ["Livingston R.J.","Shaffer T.","McFarland I.","Nguyen C.P.","Stanaway I.B.","Rajkumar N.","Johnson E.J.","da Ponte S.H.","Willa H.","Ahearn M.O.","Bertucci C.","Acklestad J.","Carroll A.","Swanson J.","Gildersleeve H.I.","Nickerson D.A."] Nothing "Submitted (OCT-2006) to the EMBL/GenBank/DDBJ databases",
+          Reference 7 "NUCLEOTIDE SEQUENCE [LARGE SCALE MRNA]" [] [(PubMed,"14702039"),(DOI,"10.1038/ng1285")] [] ["Ota T.","Suzuki Y.","Nishikawa T.","Otsuki T.","Sugiyama T.","Irie R.","Wakamatsu A.","Hayashi K.","Sato H.","Nagai K.","Kimura K.","Makita H.","Sekine M.","Obayashi M.","Nishi T.","Shibahara T.","Tanaka T.","Ishii S.","Yamamoto J.","Saito K.","Kawai Y.","Isono Y.","Nakamura Y.","Nagahari K.","Murakami K.","Yasuda T.","Iwayanagi T.","Wagatsuma M.","Shiratori A.","Sudo H.","Hosoiri T.","Kaku Y.","Kodaira H.","Kondo H.","Sugawara M.","Takahashi M.","Kanda K.","Yokoi T.","Furuya T.","Kikkawa E.","Omura Y.","Abe K.","Kamihara K.","Katsuta N.","Sato K.","Tanikawa M.","Yamazaki M.","Ninomiya K.","Ishibashi T.","Yamashita H.","Murakawa K.","Fujimori K.","Tanai H.","Kimata M.","Watanabe M.","Hiraoka S.","Chiba Y.","Ishida S.","Ono Y.","Takiguchi S.","Watanabe S.","Yosida M.","Hotuta T.","Kusano J.","Kanehori K.","Takahashi-Fujii A.","Hara H.","Tanase T.-O.","Nomura Y.","Togiya S.","Komai F.","Hara R.","Takeuchi K.","Arita M.","Imose N.","Musashino K.","Yuuki H.","Oshima A.","Sasaki N.","Aotsuka S.","Yoshikawa Y.","Matsunawa H.","Ichihara T.","Shiohata N.","Sano S.","Moriya S.","Momiyama H.","Satoh N.","Takami S.","Terashima Y.","Suzuki O.","Nakagawa S.","Senoh A.","Mizoguchi H.","Goto Y.","Shimizu F.","Wakebe H.","Hishigaki H.","Watanabe T.","Sugiyama A.","Takemoto M.","Kawakami B.","Yamazaki M.","Watanabe K.","Kumagai A.","Itakura S.","Fukuzumi Y.","Fujimori Y.","Komiyama M.","Tashiro H.","Tanigami A.","Fujiwara T.","Ono T.","Yamada K.","Fujii Y.","Ozaki K.","Hirao M.","Ohmori Y.","Kawabata A.","Hikiji T.","Kobatake N.","Inagaki H.","Ikema Y.","Okamoto S.","Okitani R.","Kawakami T.","Noguchi S.","Itoh T.","Shigeta K.","Senba T.","Matsumura K.","Nakajima Y.","Mizuno T.","Morinaga M.","Sasaki M.","Togashi T.","Oyama M.","Hata H.","Watanabe M.","Komatsu T.","Mizushima-Sugano J.","Satoh T.","Shirai Y.","Takahashi Y.","Nakagawa K.","Okumura K.","Nagase T.","Nomura N.","Kikuchi H.","Masuho Y.","Yamashita R.","Nakai K.","Yada T.","Nakamura Y.","Ohara O.","Isogai T.","Sugano S."] (Just "Complete sequencing and characterization of 21,243 full-length human cDNAs.") "Nat. Genet. 36:40-45(2004)",
+          Reference 8 "NUCLEOTIDE SEQUENCE [LARGE SCALE MRNA]" [] [(PubMed,"15489334"),(DOI,"10.1101/gr.2596504")] ["The MGC Project Team;"] [] (Just "The status, quality, and expansion of the NIH full-length cDNA project: the Mammalian Gene Collection (MGC).") "Genome Res. 14:2121-2127(2004)",
+          Reference 9 "NUCLEOTIDE SEQUENCE [LARGE SCALE GENOMIC DNA]" [] [] [] ["Mural R.J.","Istrail S.","Sutton G.","Florea L.","Halpern A.L.","Mobarry C.M.","Lippert R.","Walenz B.","Shatkay H.","Dew I.","Miller J.R.","Flanigan M.J.","Edwards N.J.","Bolanos R.","Fasulo D.","Halldorsson B.V.","Hannenhalli S.","Turner R.","Yooseph S.","Lu F.","Nusskern D.R.","Shue B.C.","Zheng X.H.","Zhong F.","Delcher A.L.","Huson D.H.","Kravitz S.A.","Mouchard L.","Reinert K.","Remington K.A.","Clark A.G.","Waterman M.S.","Eichler E.E.","Adams M.D.","Hunkapiller M.W.","Myers E.W.","Venter J.C."] Nothing "Submitted (JUL-2005) to the EMBL/GenBank/DDBJ databases",
+          Reference 10 "FUNCTION" [] [(PubMed,"21276005"),(DOI,"10.1111/j.1749-6632.2010.05919.x")] [] ["Fife B.T.","Pauken K.E."] (Just "The role of the PD-1 pathway in autoimmunity and peripheral tolerance.") "Ann. N. Y. Acad. Sci. 1217:45-59(2011)"]
 
 ccAns :: [CC]
-ccAns = [CC "FUNCTION" "Inhibitory cell surface receptor involved in the regulation of T-cell function during immunity and tolerance. Upon ligand binding, inhibits T-cell effector functions in an antigen-specific manner. Possible cell death inducer, in association with other factors. {ECO:0000269|PubMed:21276005}.",
-         CC "SUBUNIT" "Monomer. {ECO:0000250}.",
+ccAns = [CC "FUNCTION" "Inhibitory cell surface receptor involved in the regulation of T-cell function during immunity and tolerance. Upon ligand binding, inhibits T-cell effector functions in an antigen-specific manner. Possible cell death inducer, in association with other factors.",
+         CC "SUBUNIT" "Monomer.",
          CC "INTERACTION" "Q9NZQ7:CD274; NbExp=2; IntAct=EBI-4314328, EBI-4314282; Q9NZQ7-1:CD274; NbExp=2; IntAct=EBI-4314328, EBI-15686469; Q06124:PTPN11; NbExp=3; IntAct=EBI-4314328, EBI-297779;",
          CC "SUBCELLULAR LOCATION" "Membrane; Single-pass type I membrane protein.",
          CC "DEVELOPMENTAL STAGE" "Induced at programmed cell death.",
-         CC "DISEASE" "Systemic lupus erythematosus 2 (SLEB2) [MIM:605218]: A chronic, relapsing, inflammatory, and often febrile multisystemic disorder of connective tissue, characterized principally by involvement of the skin, joints, kidneys and serosal membranes. It is of unknown etiology, but is thought to represent a failure of the regulatory mechanisms of the autoimmune system. The disease is marked by a wide range of system dysfunctions, an elevated erythrocyte sedimentation rate, and the formation of LE cells in the blood or bone marrow. {ECO:0000269|PubMed:12402038}. Note=Disease susceptibility is associated with variations affecting the gene represented in this entry."]
+         CC "DISEASE" "Systemic lupus erythematosus 2 (SLEB2) [MIM:605218]: A chronic, relapsing, inflammatory, and often febrile multisystemic disorder of connective tissue, characterized principally by involvement of the skin, joints, kidneys and serosal membranes. It is of unknown etiology, but is thought to represent a failure of the regulatory mechanisms of the autoimmune system. The disease is marked by a wide range of system dysfunctions, an elevated erythrocyte sedimentation rate, and the formation of LE cells in the blood or bone marrow."]
 
 drAns :: [DR]
 drAns = [DR "EMBL" "L27440" ["AAC41700.1","-","Genomic_DNA"],
@@ -894,33 +894,33 @@ kwAns = KW ["3D-structure", "Apoptosis", "Complete proteome", "Disulfide bond",
             "Transmembrane", "Transmembrane helix"]
 
 ftAns :: [FT]
-ftAns = [FT "SIGNAL"   (ExactEP 1)   (ExactEP 20)  ["{ECO:0000255}"],
+ftAns = [FT "SIGNAL"   (ExactEP 1)   (ExactEP 20)  [],
          FT "CHAIN"    (ExactEP 21)  (ExactEP 288) ["Programmed cell death protein 1","/FTId=PRO_0000014892"],
-         FT "TOPO_DOM" (ExactEP 21)  (ExactEP 170) ["Extracellular","{ECO:0000255}"],
-         FT "TRANSMEM" (ExactEP 171) (ExactEP 191) ["Helical","{ECO:0000255}"],
-         FT "TOPO_DOM" (ExactEP 192) (ExactEP 288) ["Cytoplasmic","{ECO:0000255}"],
+         FT "TOPO_DOM" (ExactEP 21)  (ExactEP 170) ["Extracellular"],
+         FT "TRANSMEM" (ExactEP 171) (ExactEP 191) ["Helical"],
+         FT "TOPO_DOM" (ExactEP 192) (ExactEP 288) ["Cytoplasmic"],
          FT "DOMAIN"   (ExactEP 35)  (ExactEP 145) ["Ig-like V-type"],
-         FT "CARBOHYD" (ExactEP 49)  (ExactEP 49)  ["N-linked (GlcNAc...) asparagine","{ECO:0000255}"],
-         FT "CARBOHYD" (ExactEP 58)  (ExactEP 58)  ["N-linked (GlcNAc...) asparagine","{ECO:0000255}"],
-         FT "CARBOHYD" (ExactEP 74)  (ExactEP 74)  ["N-linked (GlcNAc...) asparagine","{ECO:0000255}"],
-         FT "CARBOHYD" (ExactEP 116) (ExactEP 116) ["N-linked (GlcNAc...) asparagine","{ECO:0000255}"],
-         FT "DISULFID" (ExactEP 54)  (ExactEP 123) ["{ECO:0000255|PROSITE-ProRule:PRU00114}"],
+         FT "CARBOHYD" (ExactEP 49)  (ExactEP 49)  ["N-linked (GlcNAc...) asparagine"],
+         FT "CARBOHYD" (ExactEP 58)  (ExactEP 58)  ["N-linked (GlcNAc...) asparagine"],
+         FT "CARBOHYD" (ExactEP 74)  (ExactEP 74)  ["N-linked (GlcNAc...) asparagine"],
+         FT "CARBOHYD" (ExactEP 116) (ExactEP 116) ["N-linked (GlcNAc...) asparagine"],
+         FT "DISULFID" (ExactEP 54)  (ExactEP 123) [],
          FT "VARIANT"  (ExactEP 215) (ExactEP 215) ["A -> V (in dbSNP:rs2227982)","/FTId=VAR_031685"],
-         FT "CONFLICT" (ExactEP 38)  (ExactEP 38)  ["S -> F (in Ref. 2; AAC51773)","{ECO:0000305}"],
-         FT "CONFLICT" (ExactEP 162) (ExactEP 162) ["P -> S (in Ref. 1; AAC41700)","{ECO:0000305}"],
-         FT "STRAND"   (ExactEP 27)  (ExactEP 29)  ["{ECO:0000244|PDB:5WT9}"],
-         FT "STRAND"   (ExactEP 36)  (ExactEP 38)  ["{ECO:0000244|PDB:5GGS}"],
-         FT "STRAND"   (ExactEP 40)  (ExactEP 45)  ["{ECO:0000244|PDB:5GGS}"],
-         FT "STRAND"   (ExactEP 50)  (ExactEP 55)  ["{ECO:0000244|PDB:5GGS}"],
-         FT "STRAND"   (ExactEP 60)  (ExactEP 70)  ["{ECO:0000244|PDB:5GGS}"],
-         FT "STRAND"   (ExactEP 72)  (ExactEP 74)  ["{ECO:0000244|PDB:4ZQK}"],
-         FT "STRAND"   (ExactEP 76)  (ExactEP 83)  ["{ECO:0000244|PDB:5GGS}"],
-         FT "STRAND"   (ExactEP 95)  (ExactEP 99)  ["{ECO:0000244|PDB:5GGS}"],
-         FT "STRAND"   (ExactEP 103) (ExactEP 112) ["{ECO:0000244|PDB:5GGS}"],
-         FT "HELIX"    (ExactEP 115) (ExactEP 117) ["{ECO:0000244|PDB:5GGS}"],
-         FT "STRAND"   (ExactEP 119) (ExactEP 131) ["{ECO:0000244|PDB:5GGS}"],
-         FT "STRAND"   (ExactEP 134) (ExactEP 136) ["{ECO:0000244|PDB:5GGS}"],
-         FT "STRAND"   (ExactEP 140) (ExactEP 145) ["{ECO:0000244|PDB:5GGS}"]]
+         FT "CONFLICT" (ExactEP 38)  (ExactEP 38)  ["S -> F (in Ref. 2; AAC51773)"],
+         FT "CONFLICT" (ExactEP 162) (ExactEP 162) ["P -> S (in Ref. 1; AAC41700)"],
+         FT "STRAND"   (ExactEP 27)  (ExactEP 29)  [],
+         FT "STRAND"   (ExactEP 36)  (ExactEP 38)  [],
+         FT "STRAND"   (ExactEP 40)  (ExactEP 45)  [],
+         FT "STRAND"   (ExactEP 50)  (ExactEP 55)  [],
+         FT "STRAND"   (ExactEP 60)  (ExactEP 70)  [],
+         FT "STRAND"   (ExactEP 72)  (ExactEP 74)  [],
+         FT "STRAND"   (ExactEP 76)  (ExactEP 83)  [],
+         FT "STRAND"   (ExactEP 95)  (ExactEP 99)  [],
+         FT "STRAND"   (ExactEP 103) (ExactEP 112) [],
+         FT "HELIX"    (ExactEP 115) (ExactEP 117) [],
+         FT "STRAND"   (ExactEP 119) (ExactEP 131) [],
+         FT "STRAND"   (ExactEP 134) (ExactEP 136) [],
+         FT "STRAND"   (ExactEP 140) (ExactEP 145) []]
 
 sqAns :: SQ
 sqAns = SQ 288 31647 "A5210FD40C304FB7"
@@ -976,7 +976,7 @@ main = hspec $ do
     describe "Parse Record" $ do
       it "parses PD1 example" $ do
         let record = Record idAns acAns dtAns deAns
-                            gnAns osAns Nothing ocAns
+                            gnAns osAns [] ocAns
                             oxAns [] refAns ccAns
                             drAns peAns (Just kwAns) ftAns sqAns
         parseOnly parseRecord pd1Str `shouldBe` Right record

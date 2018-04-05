@@ -92,7 +92,7 @@ data DE = DE
   , subNames :: [Name]     -- ^A name provided by the submitter of the underlying nucleotide sequence.
   , includes :: [DE]       -- ^A protein is known to include multiple functional domains each of which is described by a different name.
   , contains :: [DE]       -- ^The functional domains of an enzyme are cleaved, but the catalytic activity can only be observed, when the individual chains reorganize in a complex.
-  , flags    :: Maybe Flag -- ^Flags whether the entire is a precursor or/and a fragment.
+  , flags    :: [Flag]     -- ^Flags whether the entire is a precursor or/and a fragment.
   } deriving (Generic, Show, Eq, Ord)
 
 -- |Gene Name - the name(s) of the gene(s) that code for the stored
@@ -172,11 +172,11 @@ data RN = RN
 
 -- |Reference lines.
 data Reference = Reference
-  { rn :: RN                        -- ^Reference Number - a sequential number to each reference citation in an entry.
+  { rn :: Int                       -- ^Reference Number - a sequential number to each reference citation in an entry.
   , rp :: Text                      -- ^Reference Position - the extent of the work relevant to the entry carried out by the authors.
   , rc :: [(Token, Text)]           -- ^Reference Comment - comments relevant to the reference cited.
   , rx :: [(BibliographicDB, Text)] -- ^Reference cross-reference - the identifier assigned to a specific reference in a bibliographic database.
-  , rg :: Maybe Text                -- ^Reference Group - the consortium name associated with a given citation.
+  , rg :: [Text]                    -- ^Reference Group - the consortium name associated with a given citation.
   , ra :: [Text]                    -- ^Reference Author - authors of the paper (or other work) cited.
   , rt :: Maybe Text                -- ^Reference Title - the title of the paper (or other work) cited as exactly as possible given the limitations of the computer character set.
   , rl :: Text                      -- ^Reference Location - he conventional citation information for the reference.
@@ -251,7 +251,7 @@ data Record = Record
   , de   :: DE
   , gn   :: [GN]
   , os   :: OS
-  , og   :: Maybe OG
+  , og   :: [OG]
   , oc   :: OC
   , ox   :: OX
   , oh   :: [OH]
