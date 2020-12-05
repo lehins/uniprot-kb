@@ -31,7 +31,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - uniprot-kb
-    - QuickCheck >= 2.9 && < 2.14
+    - QuickCheck >= 2.9 && < 2.15
     - hspec >= 2.4.1 && < 2.8
     - neat-interpolation >= 0.3
     - attoparsec
